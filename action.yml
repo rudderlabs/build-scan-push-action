@@ -138,7 +138,7 @@ runs:
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
         cache-to: ${{ inputs.cache-to }}
 
-    - name: Run TruffleHog
+    - name: Scan docker image with TruffleHog
       shell: bash
       run: |
         docker pull trufflesecurity/trufflehog:latest
@@ -156,7 +156,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         platforms: ${{ inputs.platform }}
-        push: true
+        push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
