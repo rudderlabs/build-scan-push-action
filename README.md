@@ -18,8 +18,8 @@ This action contains three steps:
 In your GitHub workflows, replace `docker/build-push-action@vX` in your
 build and push step with `rudderlabs/build-scan-push-action@main`.
 
-For more, refer the documentation of
-[docker-build-push](https://github.com/docker/build-push-action) GitHub Action
+For more info, refer the documentation of
+[docker-build-push](https://github.com/docker/build-push-action) GitHub Action.
 
 ## Current Limitations
 
@@ -35,4 +35,4 @@ GitHub Action, we only use the following inputs in our GitHub Action.
 - `tags`
 
 If you want to use an input which is not in the above mentioned list,
-feel free to contribute or reach out to @rudderlabs/infra team for support.
+feel free to contribute or reach out to @rudderlabs/Infra team for support.
