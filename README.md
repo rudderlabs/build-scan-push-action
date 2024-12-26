@@ -23,12 +23,13 @@ For more info, refer the documentation of
 
 ## Current Limitations
 
-Although this GitHub Action accepts all the inputs of [docker-build-push](https://github.com/docker/build-push-action)
-GitHub Action, we only use the following inputs in our GitHub Action.
+This GitHub Action only accepts the following inputs.
 
 - `build-args`
 - `context`
+- `file`
 - `labels`
+- `load`
 - `platforms`
 - `push`
 - `tags`
