@@ -136,7 +136,7 @@ runs:
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
-        cache-to: ${{ inputs.cache-to }}
+        cache-to: type=local,dest=${{ runner.temp }}/.buildx-cache,mode=max,tag=temp
 
     - name: Scan docker image with TruffleHog
       shell: bash
@@ -160,4 +160,4 @@ runs:
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
-        cache-from: ${{ inputs.cache-to }}
+        cache-from: type=local,src=${{ runner.temp }}/.buildx-cache,tag=temp

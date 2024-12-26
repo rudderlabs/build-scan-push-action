@@ -27,7 +27,6 @@ Although this GitHub Action accepts all the inputs of [docker-build-push](https:
 GitHub Action, we only use the following inputs in our GitHub Action.
 
 - `build-args`
-- `cache-to`
 - `context`
 - `labels`
 - `platforms`
