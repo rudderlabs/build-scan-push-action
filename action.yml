@@ -26,6 +26,13 @@ inputs:
     description: "Push is a shorthand for --output=type=registry"
     required: false
     default: "false"
+  sbom:
+    description: "Generate SBOM attestation for the build (shorthand for --attest=type=sbom)"
+    required: false
+    default: "false"
+  secret-envs:
+    description: "List of secret env vars to expose to the build (e.g., key=envname, MY_SECRET=MY_ENV_VAR)"
+    required: false
   tags:
     description: "List of tags"
     required: false
@@ -53,6 +60,8 @@ runs:
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
+        sbom: ${{ inputs.sbom }}
+        secret-envs: ${{ inputs.secret-envs }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
         cache-to: type=local,dest=${{ runner.temp }}/.buildx-cache,mode=max,tag=temp
 
@@ -78,4 +87,6 @@ runs:
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
+        sbom: ${{ inputs.sbom }}
+        secret-envs: ${{ inputs.secret-envs }}
         cache-from: type=local,src=${{ runner.temp }}/.buildx-cache,tag=temp
