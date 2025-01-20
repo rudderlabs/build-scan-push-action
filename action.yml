@@ -29,7 +29,6 @@ inputs:
   sbom:
     description: "Generate SBOM attestation for the build (shorthand for --attest=type=sbom)"
     required: false
-    default: "false"
   secret-envs:
     description: "List of secret env vars to expose to the build (e.g., key=envname, MY_SECRET=MY_ENV_VAR)"
     required: false
