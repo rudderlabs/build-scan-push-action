@@ -32,6 +32,8 @@ This GitHub Action only accepts the following inputs.
 - `load`
 - `platforms`
 - `push`
+- `sbom`
+- `secret-envs`
 - `tags`
 
 If you want to use an input which is not in the above mentioned list,
