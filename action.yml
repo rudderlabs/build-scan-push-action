@@ -6,6 +6,12 @@ inputs:
   build-args:
     description: "List of build-time variables"
     required: false
+  cache-from:
+    description: "List of external cache sources for buildx (e.g., user/app:cache, type=local,src=path/to/dir)"
+    required: false
+  cache-to:
+    description: "List of cache export destinations for buildx (e.g., user/app:cache, type=local,dest=path/to/dir)"
+    required: false
   context:
     description: "Build's context is the set of files located in the specified PATH or URL"
     required: false
@@ -61,8 +67,9 @@ runs:
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
         secret-envs: ${{ inputs.secret-envs }}
+        cache-from: ${{ inputs.cache-from }}
+        cache-to: ${{ inputs.cache-to }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
-        cache-to: type=local,dest=${{ runner.temp }}/.buildx-cache,mode=max,tag=temp
 
     - name: Scan docker image with TruffleHog
       shell: bash
@@ -88,7 +95,8 @@ runs:
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
         secret-envs: ${{ inputs.secret-envs }}
-        cache-from: type=local,src=${{ runner.temp }}/.buildx-cache,tag=temp
+        cache-from: ${{ inputs.cache-from }}
+        cache-to: ${{ inputs.cache-to }}
 
     - name: Sign the images with GitHub OIDC Token
       env:
@@ -101,3 +109,4 @@ runs:
           images+="${tag}@${DIGEST} "
         done
         cosign sign  --yes ${images}
+
