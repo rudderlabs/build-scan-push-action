@@ -2,16 +2,17 @@
 
 ## About
 
-GitHub Action to build, scan and push Docker images. This is a thin wrapper
+GitHub Action to build, scan, sign and push Docker images. This is a thin wrapper
 around [docker-build-push](https://github.com/docker/build-push-action) GitHub action.
 
-This action contains three steps:
+This action does the following:
 
 1. Builds the docker image (with push set to `false`).
 2. Scans the built docker image for secrets with [Trufflehog](https://github.com/trufflesecurity/trufflehog).
    - GitHub action fails if secrets are found in the docker image
 3. Pushes the docker image to a docker repository if no secrets are found
 (when push is set to `true`).
+4. Signs the docker image
 
 ## Usage
 
