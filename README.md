@@ -27,11 +27,14 @@ For more info, refer the documentation of
 This GitHub Action only accepts the following inputs.
 
 - `build-args`
+- `cache-from`
+- `cache-to`
 - `context`
 - `file`
 - `labels`
 - `load`
 - `platforms`
+- `provenance`
 - `push`
 - `sbom`
 - `secret-envs`
