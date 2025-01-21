@@ -16,8 +16,8 @@ This action does the following:
 
 ## Usage
 
-In your GitHub workflows, replace `docker/build-push-action@vX` in your
-build and push step with `rudderlabs/build-scan-push-action@v1.0`.
+Replace `docker/build-push-action@vX` with `rudderlabs/build-scan-push-action@v1.x`
+in your GitHub Workflows.
 
 For more info, refer the documentation of
 [docker-build-push](https://github.com/docker/build-push-action) GitHub Action.
