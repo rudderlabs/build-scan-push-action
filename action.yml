@@ -28,6 +28,10 @@ inputs:
   platforms:
     description: "List of target platforms for build"
     required: false
+  provenance:
+    description: "Generate provenance attestation for the build (shorthand for --attest=type=provenance)"
+    required: false
+    default: "false"
   push:
     description: "Push is a shorthand for --output=type=registry"
     required: false
@@ -66,6 +70,7 @@ runs:
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
+        provenance: ${{ inputs.provenance }}
         secret-envs: ${{ inputs.secret-envs }}
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
@@ -94,6 +99,7 @@ runs:
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
+        provenance: ${{ inputs.provenance }}
         secret-envs: ${{ inputs.secret-envs }}
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
@@ -109,4 +115,3 @@ runs:
           images+="${tag}@${DIGEST} "
         done
         cosign sign  --yes ${images}
-
