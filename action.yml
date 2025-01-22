@@ -75,7 +75,7 @@ runs:
         secret-envs: ${{ inputs.secret-envs }}
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
-        outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
+        outputs: type=oci,dest=${{ runner.temp }}/local-docker-image.tar
 
     - name: Scan docker image with TruffleHog
       shell: bash
