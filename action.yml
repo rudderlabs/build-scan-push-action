@@ -65,7 +65,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
-        platforms: ${{ inputs.platform }}
+        platforms: ${{ inputs.platforms }}
         push: false
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
@@ -95,7 +95,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
-        platforms: ${{ inputs.platform }}
+        platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
