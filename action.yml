@@ -64,6 +64,7 @@ runs:
       uses: docker/build-push-action@v6
       with:
         context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
         platforms: ${{ inputs.platform }}
         push: false
         tags: ${{ inputs.tags }}
@@ -93,6 +94,7 @@ runs:
       uses: docker/build-push-action@v6
       with:
         context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
         platforms: ${{ inputs.platform }}
         push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
