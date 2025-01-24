@@ -65,7 +65,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
-        platforms: ${{ inputs.platforms }}
+        platforms: linux/amd64
         push: false
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
