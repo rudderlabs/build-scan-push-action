@@ -11,7 +11,7 @@ This action does the following:
 2. Scans the built docker image for secrets with [Trufflehog](https://github.com/trufflesecurity/trufflehog).
    - GitHub action fails if secrets are found in the docker image
 3. Pushes the docker image to a docker repository if no secrets are found
-(when push is set to `true`).
+   (when push is set to `true`).
 4. Signs the docker image
 
 
@@ -47,6 +47,7 @@ This GitHub Action only accepts the following inputs.
 - `sbom`
 - `secret-envs`
 - `tags`
+- `target`
 
 If you want to use an input which is not in the above mentioned list,
 feel free to contribute or reach out to infra team for support.
