@@ -14,6 +14,14 @@ This action does the following:
 (when push is set to `true`).
 4. Signs the docker image
 
+
+## Add the following below permissions for image siging in your workflow at root level. [eg](https://github.com/rudderlabs/rudderstack-operator/blob/f3d326ddcb207fb8f42b587d6307f338479c2540/.github/workflows/build-pr.yaml#L10)
+
+permissions:
+  id-token: write  # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read   # This is required for actions/checkout
+
+
 ## Usage
 
 Replace `docker/build-push-action@vX` with `rudderlabs/build-scan-push-action@v1.x`
