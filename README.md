@@ -17,6 +17,7 @@ This action does the following:
 
 ## permissions
 
+GitHub Actions can use Fulcio to sign images. Fulcio is a root CA that issues signing certificates from OIDC tokens. 
 Add the following below permissions for image siging in your workflow at root level. [eg](https://github.com/rudderlabs/rudderstack-operator/blob/f3d326ddcb207fb8f42b587d6307f338479c2540/.github/workflows/build-pr.yaml#L10)
 
 ```
