@@ -19,9 +19,11 @@ This action does the following:
 
 Add the following below permissions for image siging in your workflow at root level. [eg](https://github.com/rudderlabs/rudderstack-operator/blob/f3d326ddcb207fb8f42b587d6307f338479c2540/.github/workflows/build-pr.yaml#L10)
 
-`permissions:`
-  `id-token: write`  
-  `contents: read` 
+```
+ permissions:
+  id-token: write  
+  contents: read
+```
 
 
 ## Usage
