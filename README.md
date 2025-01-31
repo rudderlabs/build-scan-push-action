@@ -51,6 +51,7 @@ This GitHub Action only accepts the following inputs.
 - `push`
 - `sbom`
 - `secret-envs`
+- `secrets`
 - `tags`
 - `target`
 
