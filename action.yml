@@ -45,6 +45,12 @@ inputs:
   tags:
     description: "List of tags"
     required: false
+  load_target:
+    description: "Target stage to load for local use"
+    required: false
+  push_target:
+    description: "Target stage to push to registry"
+    required: false
 
 outputs:
   imageid:
@@ -75,6 +81,7 @@ runs:
         secret-envs: ${{ inputs.secret-envs }}
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
+        target: ${{ inputs.load_target }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
 
     - name: Scan docker image with TruffleHog
@@ -105,6 +112,7 @@ runs:
         secret-envs: ${{ inputs.secret-envs }}
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
+        target: ${{ inputs.push_target }}
 
     - name: Sign the images with GitHub OIDC Token
       env:
