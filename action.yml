@@ -76,8 +76,6 @@ runs:
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
         build-args: ${{ inputs.build-args }}
-        sbom: ${{ inputs.sbom }}
-        provenance: ${{ inputs.provenance }}
         secret-envs: ${{ inputs.secret-envs }}
         secrets: ${{ inputs.secrets }}
         cache-from: ${{ inputs.cache-from }}
