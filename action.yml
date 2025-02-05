@@ -66,12 +66,21 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Select single platform
+      id: select-single-platform
+      shell: bash
+      run: |
+        if [[ "${{ inputs.platforms }}" == *","* || "${{ inputs.platforms }}" == *"["* || "${{ inputs.platforms }}" == *"-"* ]]; then
+          echo "platform=linux/amd64" >> $GITHUB_OUTPUT
+        else
+          echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
+        fi
     - name: Build image
       uses: docker/build-push-action@v6
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
-        platforms: linux/amd64
+        platforms: ${{ steps.select-single-platform.outputs.platform }}
         push: false
         tags: ${{ inputs.tags }}
         labels: ${{ inputs.labels }}
