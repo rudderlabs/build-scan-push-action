@@ -76,6 +76,11 @@ runs:
           echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
         fi
 
+    - name: Create tmp directory
+      shell: bash
+      run: |
+        mkdir -p ${{ runner.temp }}/build-root-filesystem
+
     - name: Build image
       uses: docker/build-push-action@v6
       with:
