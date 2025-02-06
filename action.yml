@@ -79,7 +79,8 @@ runs:
     - name: Create tmp directory
       shell: bash
       run: |
-        mkdir -p ${{ runner.temp }}/build-root-filesystem
+        sudo mkdir -p ${{ runner.temp }}/build-root-filesystem
+        sudo chown -R root:root ${{ runner.temp }}/build-root-filesystem
 
     - name: Build image
       uses: docker/build-push-action@v6
