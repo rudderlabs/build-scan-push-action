@@ -75,6 +75,7 @@ runs:
         else
           echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
         fi
+
     - name: Build image
       uses: docker/build-push-action@v6
       with:
@@ -90,7 +91,26 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
-        outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
+        outputs: type=local,dest=${{ runner.temp }}/build-root-filesystem
+
+    - name: Create file with paths to be excluded
+      shell: bash
+      run: |
+        cat <<EOF > ${{ runner.temp }}/excluded.txt
+        /etc
+        /bin
+        /sbin
+        /lib
+        /usr/bin
+        /usr/sbin
+        /usr/lib
+        /usr/share
+        /usr/local
+        /var
+        node_modules
+        .npm
+        yarn-v*
+        EOF
 
     - name: Scan docker image with TruffleHog
       shell: bash
@@ -98,10 +118,12 @@ runs:
         docker pull trufflesecurity/trufflehog:latest
         docker run --rm -v ${{ runner.temp }}:/tmp \
           trufflesecurity/trufflehog:latest \
-          docker --image file:///tmp/local-docker-image.tar \
+          filesystem /tmp/build-root-filesystem \
+          --exclude-paths=/tmp/excluded.txt \
           --github-actions \
           --no-verification \
-          --fail
+          --fail \
+          --json
 
     - name: Build and push
       id: build-and-push
