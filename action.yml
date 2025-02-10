@@ -93,20 +93,6 @@ runs:
         target: ${{ inputs.target }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
 
-    #- name: Create file with paths to be excluded from scan
-    #  shell: bash
-    #  run: |
-    #    cat <<EOF > ${{ runner.temp }}/excluded.txt
-    #    .*node_modules.*
-    #    .*site-packages.*
-    #    ^/opt/helm/helm-charts.*
-    #    ^/usr/lib.*
-    #    ^/usr/share.*
-    #    ^/usr/local.*
-    #    ^/var/lib/apt.*
-    #    ^/var/lib/dpkg.*
-    #    EOF
-
     - name: Setup python
       uses: actions/setup-python@v5
       with:
