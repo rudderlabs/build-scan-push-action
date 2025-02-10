@@ -75,6 +75,7 @@ runs:
         else
           echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
         fi
+
     - name: Build image
       uses: docker/build-push-action@v6
       with:
@@ -92,16 +93,44 @@ runs:
         target: ${{ inputs.target }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
 
-    - name: Scan docker image with TruffleHog
+    #- name: Create file with paths to be excluded from scan
+    #  shell: bash
+    #  run: |
+    #    cat <<EOF > ${{ runner.temp }}/excluded.txt
+    #    .*node_modules.*
+    #    .*site-packages.*
+    #    ^/opt/helm/helm-charts.*
+    #    ^/usr/lib.*
+    #    ^/usr/share.*
+    #    ^/usr/local.*
+    #    ^/var/lib/apt.*
+    #    ^/var/lib/dpkg.*
+    #    EOF
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install TruffleHog
       shell: bash
       run: |
-        docker pull trufflesecurity/trufflehog:latest
-        docker run --rm -v ${{ runner.temp }}:/tmp \
-          trufflesecurity/trufflehog:latest \
-          docker --image file:///tmp/local-docker-image.tar \
-          --github-actions \
-          --no-verification \
-          --fail
+        TRUFFLEHOG_VERSION="3.88.5"
+        echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz" -o trufflehog.tar.gz
+        tar -xzf trufflehog.tar.gz
+        chmod +x trufflehog
+
+        sudo mv trufflehog /usr/local/bin/
+
+        # Cleanup
+        rm trufflehog.tar.gz
+
+    - name: Scan docker image with TruffleHog
+      id: scan-docker-image
+      shell: bash
+      run: |
+        python $GITHUB_ACTION_PATH/docker-image-scanner.py ${{ runner.temp }}/local-docker-image.tar $GITHUB_ACTION_PATH/trufflehog-ignore
 
     - name: Build and push
       id: build-and-push
