@@ -27,7 +27,14 @@ def scan_docker_image(image_path: str) -> List[Dict]:
     """Scan Docker image using trufflehog and return JSON results."""
     try:
         formatted_path = format_image_path(image_path)
-        cmd = ["trufflehog", "docker", "--image", formatted_path, "--json"]
+        cmd = [
+            "trufflehog",
+            "docker",
+            "--image",
+            formatted_path,
+            "--json",
+            "--no-verification",
+        ]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
