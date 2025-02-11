@@ -1,0 +1,8 @@
+.*node_modules.*
+.*site-packages.*
+^/opt/helm/helm-charts.*
+^/usr/lib.*
+^/usr/share.*
+^/usr/local.*
+^/var/lib/apt.*
+^/var/lib/dpkg.*
