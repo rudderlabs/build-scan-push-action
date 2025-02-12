@@ -6,3 +6,5 @@
 ^/usr/local.*
 ^/var/lib/apt.*
 ^/var/lib/dpkg.*
+^/venv.*
+^/usr/lib/python3/dist-packages.*
