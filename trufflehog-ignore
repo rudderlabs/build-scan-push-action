@@ -6,3 +6,4 @@
 ^/usr/local.*
 ^/var/lib/apt.*
 ^/var/lib/dpkg.*
+^/venv.*
