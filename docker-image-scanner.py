@@ -33,6 +33,7 @@ def scan_docker_image(image_path: str) -> List[Dict]:
             "--image",
             formatted_path,
             "--json",
+            "--no-update",
             "--no-verification",
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
