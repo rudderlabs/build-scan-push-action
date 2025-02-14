@@ -14,12 +14,12 @@ This action does the following:
    (when push is set to `true`).
 4. Signs the docker image
 
-## permissions
+## Permissions
 
 GitHub Actions can use Fulcio to sign images. Fulcio is a root CA that issues signing certificates from OIDC tokens.
-Add the following below permissions for image siging in your workflow at root level. [eg](https://github.com/rudderlabs/rudderstack-operator/blob/f3d326ddcb207fb8f42b587d6307f338479c2540/.github/workflows/build-pr.yaml#L10)
+Add the following permissions in your workflow at root level. [eg](https://github.com/rudderlabs/rudderstack-operator/blob/f3d326ddcb207fb8f42b587d6307f338479c2540/.github/workflows/build-pr.yaml#L10)
 
-```
+```yaml
  permissions:
   id-token: write  
   contents: read
@@ -35,9 +35,13 @@ For more info, refer the documentation of
 
 ## Ignoring false positives
 
-TruffleHog doesn't support excluding file paths (to ignore false positives) when
-scanning docker images. We wrote a python script that reads regular expressions
-from `trufflehog-ignore` and excludes all paths that match these regular expressions
+By default TruffleHog doesn't support excluding file paths when
+scanning docker images. In our GitHub Action, we have added support
+to ignore paths using a `truffleignore` file.
+
+We can add [gitignore-style patterns](https://git-scm.com/docs/gitignore)
+to `truffleignore`. All paths that match these patterns are excluded
+in TruffleHog scans.
 
 ## Current Limitations
 
