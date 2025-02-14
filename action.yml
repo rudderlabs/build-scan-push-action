@@ -100,10 +100,13 @@ runs:
 
     - name: Install TruffleHog
       shell: bash
+      env:
+        PLATFORM: ${{ steps.select-single-platform.outputs.platform }}
       run: |
         TRUFFLEHOG_VERSION="3.88.5"
+        ARCH=$(echo $PLATFORM | cut -d / -f 2)
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
-        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz" -o trufflehog.tar.gz
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${ARCH}.tar.gz" -o trufflehog.tar.gz
         tar -xzf trufflehog.tar.gz
         chmod +x trufflehog
 
