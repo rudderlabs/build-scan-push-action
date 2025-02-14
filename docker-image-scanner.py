@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -76,18 +77,25 @@ def filter_results(findings: List[Dict], patterns: List[str]) -> List[Dict]:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print(
-            "Usage: python scanner.py <docker_image.tar> [regex_file]", file=sys.stderr
-        )
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--image",
+        required=True,
+        help="local tarball of your docker image",
+    )
+    parser.add_argument(
+        "--ignorepaths",
+        required=False,
+        help="file with paths to exclude in regex format",
+    )
+    args = parser.parse_args()
 
-    image_path = sys.argv[1]
-    regex_file = sys.argv[2] if len(sys.argv) > 2 else None
+    if args.ignorepaths:
+        patterns = load_regex_patterns(args.ignorepaths)
+    else:
+        patterns = []
 
-    patterns = load_regex_patterns(regex_file) if regex_file else []
-
-    findings = scan_docker_image(image_path)
+    findings = scan_docker_image(args.image)
 
     # Filter results if patterns provided
     if patterns:
