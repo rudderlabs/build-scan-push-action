@@ -98,6 +98,10 @@ runs:
       with:
         python-version: "3.x"
 
+    - name: Install python requirements
+      shell: bash
+      run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
+
     - name: Install TruffleHog
       shell: bash
       env:
