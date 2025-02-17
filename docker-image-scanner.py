@@ -50,8 +50,14 @@ def scan_docker_image(image_path: str) -> List[Dict]:
 
 def filter_results(findings: List[Dict], ignorepaths: str) -> List[Dict]:
     """Filter findings based on gitignore patterns."""
-    with open(ignorepaths, "r") as fh:
-        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
+    try:
+        with open(ignorepaths, "r") as fh:
+            spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
+    except FileNotFoundError:
+        print(
+            f"file {ignorepaths} not found in repository. Not filtering any findings."
+        )
+        return findings
 
     filtered_findings = []
 
@@ -76,6 +82,7 @@ def main():
         "--ignorepaths",
         required=False,
         help="file with paths to ignore (in gitignore pattern format)",
+        default=".truffleignore",
     )
     args = parser.parse_args()
 
