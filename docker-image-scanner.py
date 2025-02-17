@@ -2,20 +2,10 @@ import argparse
 import json
 import os
 import sys
-import re
 import subprocess
+import pathspec
 
 from typing import List, Dict
-
-
-def load_regex_patterns(regex_file: str) -> List[str]:
-    """Load regex patterns from a file."""
-    try:
-        with open(regex_file, "r") as f:
-            return [line.strip() for line in f if line.strip()]
-    except FileNotFoundError:
-        print(f"Error: Regex file '{regex_file}' not found", file=sys.stderr)
-        sys.exit(1)
 
 
 def format_image_path(image_path: str) -> str:
@@ -58,17 +48,16 @@ def scan_docker_image(image_path: str) -> List[Dict]:
         sys.exit(1)
 
 
-def filter_results(findings: List[Dict], patterns: List[str]) -> List[Dict]:
-    """Filter findings based on regex patterns."""
-    if not patterns:
-        return findings
+def filter_results(findings: List[Dict], ignorepaths: str) -> List[Dict]:
+    """Filter findings based on gitignore patterns."""
+    with open(ignorepaths, "r") as fh:
+        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
 
-    compiled_patterns = [re.compile(pattern) for pattern in patterns]
     filtered_findings = []
 
     for finding in findings:
-        raw_result = str(finding["SourceMetadata"]["Data"]["Docker"]["file"])
-        if any(pattern.search(raw_result) for pattern in compiled_patterns):
+        file_path = str(finding["SourceMetadata"]["Data"]["Docker"]["file"])
+        if spec.match_file(file_path):
             continue
 
         filtered_findings.append(finding)
@@ -86,20 +75,15 @@ def main():
     parser.add_argument(
         "--ignorepaths",
         required=False,
-        help="file with paths to exclude in regex format",
+        help="file with paths to ignore (in gitignore pattern format)",
     )
     args = parser.parse_args()
-
-    if args.ignorepaths:
-        patterns = load_regex_patterns(args.ignorepaths)
-    else:
-        patterns = []
 
     findings = scan_docker_image(args.image)
 
     # Filter results if patterns provided
-    if patterns:
-        findings = filter_results(findings, patterns)
+    if args.ignorepaths:
+        findings = filter_results(findings, args.ignorepaths)
 
     # Output results
     if findings:
