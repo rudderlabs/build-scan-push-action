@@ -37,11 +37,11 @@ For more info, refer the documentation of
 
 By default TruffleHog doesn't support excluding file paths when
 scanning docker images. In our GitHub Action, we have added support
-to ignore paths using a `truffleignore` file.
+to exclude paths using a `.truffleignore` file.
 
-We can add [gitignore-style patterns](https://git-scm.com/docs/gitignore)
-to `truffleignore`. All paths that match these patterns are excluded
-in TruffleHog scans.
+Create a `.truffleignore` file at the root of your repository. Add paths
+that you want to exclude in [gitignore-style pattern](https://git-scm.com/docs/gitignore)
+format. All paths that match these patterns are excluded in TruffleHog scans.
 
 ## Current Limitations
 
@@ -65,3 +65,19 @@ This GitHub Action only accepts the following inputs.
 
 If you want to use an input which is not in the above mentioned list,
 feel free to contribute or reach out to infra team for support.
+
+## Upgrade Guide
+
+### From v1.4.x to v1.5.x
+
+We have added support to exclude paths in v1.4 where we relied on
+a common `truffleignore` file in this repository to filter findings.
+We no longer do that in versions >=v1.5.x and instead rely on repo
+specific `.truffleignore` file at the root of your repository.
+
+If you were using `truffleignore` to exclude paths, you need to move
+your paths to `.truffleignore` file at the root of your repository.
+All your paths should follow [gitignore pattern format](https://git-scm.com/docs/gitignore#_pattern_format)
+
+If you are not using exclude paths feature, you don't have to do
+anything.
