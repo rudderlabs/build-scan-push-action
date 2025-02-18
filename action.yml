@@ -70,7 +70,7 @@ runs:
       id: select-single-platform
       shell: bash
       run: |
-        if [[ "${{ inputs.platforms }}" == *","* || "${{ inputs.platforms }}" == *"["* || "${{ inputs.platforms }}" == *"-"* ]]; then
+        if [[ "${{ inputs.platforms }}" == *","* || "${{ inputs.platforms }}" == *"["* || "${{ inputs.platforms }}" == *"-"* || "${{ inputs.platforms }}" == "" ]]; then
           echo "platform=linux/amd64" >> $GITHUB_OUTPUT
         else
           echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
