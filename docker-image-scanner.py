@@ -95,8 +95,18 @@ def main():
     # Output results
     if findings:
         for finding in findings:
-            file = finding["SourceMetadata"]["Data"]["Docker"]["file"]
-            layer = finding["SourceMetadata"]["Data"]["Docker"]["layer"]
+            file = (
+                finding.get("SourceMetadata", {})
+                .get("Data", {})
+                .get("Docker", {})
+                .get("file", "")
+            )
+            layer = (
+                finding.get("SourceMetadata", {})
+                .get("Data", {})
+                .get("Docker", {})
+                .get("layer", "")
+            )
             redacted_secret = finding["Redacted"]
             print(
                 f"Found unverified secret {redacted_secret} in file={file} layer={layer}"
