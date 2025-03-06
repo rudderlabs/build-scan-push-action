@@ -102,15 +102,24 @@ runs:
       shell: bash
       run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
 
+    - name: Get github actions runner architecture
+      shell: bash
+      run: |
+        if [[ "${{ runner.arch }}" == "X64" ]]; then
+          echo "TRUFFLEHOG_ARCH=amd64" >> $GITHUB_ENV
+        elif [[ "${{ runner.arch }}" == "ARM64" ]]; then
+          echo "TRUFFLEHOG_ARCH=arm64" >> $GITHUB_ENV
+        else
+          echo "Unsupported architecture: ${{ runner.arch }}"
+          exit 1
+        fi
+
     - name: Install TruffleHog
       shell: bash
-      env:
-        PLATFORM: ${{ steps.select-single-platform.outputs.platform }}
       run: |
         TRUFFLEHOG_VERSION="3.88.5"
-        ARCH=$(echo $PLATFORM | cut -d / -f 2)
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
-        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${ARCH}.tar.gz" -o trufflehog.tar.gz
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o trufflehog.tar.gz
         tar -xzf trufflehog.tar.gz
         chmod +x trufflehog
 
