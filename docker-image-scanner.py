@@ -95,6 +95,7 @@ def main():
     # Output results
     if findings:
         for finding in findings:
+            print(finding)
             file = (
                 finding.get("SourceMetadata", {})
                 .get("Data", {})
