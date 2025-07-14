@@ -92,6 +92,7 @@ runs:
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
+        progress: plain
 
     - name: Setup python
       uses: actions/setup-python@v5
@@ -153,6 +154,7 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
+        progress: plain
 
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.8.1
