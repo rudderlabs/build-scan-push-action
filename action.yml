@@ -186,7 +186,7 @@ runs:
           --org="$SNYK_ORG" \
           --project-name="$SNYK_PROJECT_NAME" \
           --file=${{ inputs.file }} \ # path to Dockerfile
-          ${{ inputs.tags }}
+          ${{ inputs.tags }}@${{ steps.build-and-push.outputs.digest }}
 
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.8.1
