@@ -174,6 +174,7 @@ runs:
         SNYK_TOKEN: ${{ inputs.snyk-token }}
         SNYK_ORG: ${{ inputs.snyk-org }}
         SNYK_PROJECT_NAME: ${{ inputs.snyk-project-name }}
+        SNYK_FILE: ${{ inputs.file }}
       run: |
         echo "Installing Snyk CLI..."
         npm install -g snyk
@@ -185,7 +186,7 @@ runs:
         snyk container monitor \
           --org="$SNYK_ORG" \
           --project-name="$SNYK_PROJECT_NAME" \
-          --file=${{ inputs.file }} \ # path to Dockerfile
+          --file="$SNYK_FILE" \
           ${{ inputs.tags }}@${{ steps.build-and-push.outputs.digest }}
 
     - name: Install Cosign
