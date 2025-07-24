@@ -51,6 +51,19 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
+  snyk-enabled:
+    description: "Enable Snyk scan step. Set to true to run Snyk scan."
+    required: false
+    default: false
+  snyk-token:
+    description: "Snyk API token. Required if snyk-enabled is true."
+    required: false
+  snyk-org:
+    description: "Snyk organization slug (optional)."
+    required: false
+  snyk-project-name:
+    description: "Project name for Snyk dashboard (optional)."
+    required: false
 
 outputs:
   imageid:
@@ -153,6 +166,27 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
+
+    - name: Scan docker image with Snyk
+      shell: bash
+      if: ${{ inputs.snyk-enabled }}
+      env:
+        SNYK_TOKEN: ${{ inputs.snyk-token }}
+        SNYK_ORG: ${{ inputs.snyk-org }}
+        SNYK_PROJECT_NAME: ${{ inputs.snyk-project-name }}
+      run: |
+        echo "Installing Snyk CLI..."
+        npm install -g snyk
+
+        echo "Snyk CLI Version"
+        snyk --version
+
+        # Monitor to Snyk dashboard
+        snyk container monitor \
+          --org="$SNYK_ORG" \
+          --project-name="$SNYK_PROJECT_NAME" \
+          --file=${{ inputs.file }} \ # path to Dockerfile
+          ${{ inputs.tags }}
 
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.8.1
