@@ -184,12 +184,17 @@ runs:
         echo "Snyk CLI Version"
         snyk --version
 
+        IMAGE="$(echo -n "$TAGS@$DIGEST" | tr -d '\n')"
+        echo "Snyk Org: $SNYK_ORG"
+        echo "Snyk Project Name: $SNYK_PROJECT_NAME"
+        echo "Image to scan: $IMAGE"
+
         # Monitor to Snyk dashboard
         snyk container monitor \
           --org="$SNYK_ORG" \
           --project-name="$SNYK_PROJECT_NAME" \
           --file="$SNYK_FILE" \
-          "$TAGS@$DIGEST"
+          "$IMAGE"
 
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.8.1
