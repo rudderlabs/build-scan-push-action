@@ -200,6 +200,7 @@ runs:
       uses: sigstore/cosign-installer@v3.8.1
 
     - name: Sign the images with GitHub OIDC Token
+      if: ${{ inputs.push }}
       env:
         DIGEST: ${{ steps.build-and-push.outputs.digest }}
         TAGS: ${{ inputs.tags }}
