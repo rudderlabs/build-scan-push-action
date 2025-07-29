@@ -167,6 +167,12 @@ runs:
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
 
+    - name: Setup Node.js
+      if: ${{ inputs.snyk-enabled }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
     - name: Scan docker image with Snyk
       shell: bash
       if: ${{ inputs.snyk-enabled }}
