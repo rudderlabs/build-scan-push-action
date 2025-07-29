@@ -114,6 +114,8 @@ runs:
     - name: Install python requirements
       shell: bash
       run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
+    
+    
 
     - name: Get github actions runner architecture
       shell: bash
@@ -166,6 +168,12 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
+
+    - name: Setup Node.js
+      if: ${{ inputs.snyk-enabled }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
     - name: Scan docker image with Snyk
       shell: bash
