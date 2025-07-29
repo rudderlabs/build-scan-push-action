@@ -168,14 +168,14 @@ runs:
         target: ${{ inputs.target }}
 
     - name: Setup Node.js
-      if: ${{ inputs.snyk-enabled }}
+      if: ${{ inputs.snyk-enabled == 'true' }}
       uses: actions/setup-node@v4
       with:
         node-version: '22'
 
     - name: Scan docker image with Snyk
       shell: bash
-      if: ${{ inputs.snyk-enabled }}
+      if: ${{ inputs.snyk-enabled == 'true' }}
       env:
         SNYK_TOKEN: ${{ inputs.snyk-token }}
         SNYK_ORG: ${{ inputs.snyk-org }}
@@ -206,7 +206,7 @@ runs:
       uses: sigstore/cosign-installer@v3.8.1
 
     - name: Sign the images with GitHub OIDC Token
-      if: ${{ inputs.push }}
+      if: ${{ inputs.push == 'true' }}
       env:
         DIGEST: ${{ steps.build-and-push.outputs.digest }}
         TAGS: ${{ inputs.tags }}
