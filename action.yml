@@ -114,8 +114,6 @@ runs:
     - name: Install python requirements
       shell: bash
       run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
-    
-    
 
     - name: Get github actions runner architecture
       shell: bash
