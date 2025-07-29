@@ -171,7 +171,7 @@ runs:
       if: ${{ inputs.snyk-enabled }}
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Scan docker image with Snyk
       shell: bash
