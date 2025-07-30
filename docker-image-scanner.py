@@ -118,6 +118,7 @@ def main():
         print(f"FAIL_ON_SECRETS_FOUND: {FAIL_ON_SECRETS_FOUND}")
         sys.exit(1 if FAIL_ON_SECRETS_FOUND else 0)
     else:
+        print("No secrets found in image! 🚀")
         sys.exit(0)
 
 
