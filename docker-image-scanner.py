@@ -115,7 +115,7 @@ def main():
             )
 
         # If secrets are found and FAIL_ON_SECRETS_FOUND is true, exit with error
-        print(f"FAIL_ON_SECRETS_FOUND: {FAIL_ON_SECRETS_FOUND}")
+        print("Secrets found in image! 🚨")
         sys.exit(1 if FAIL_ON_SECRETS_FOUND else 0)
     else:
         print("No secrets found in image! 🚀")
@@ -123,4 +123,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print(f"Should fail on secrets found? {FAIL_ON_SECRETS_FOUND}")
     main()
