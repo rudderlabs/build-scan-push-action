@@ -51,6 +51,10 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
+  fail-on-secrets-found:
+    description: "Fail the build if secrets are found in the image."
+    required: false
+    default: true
   snyk-enabled:
     description: "Enable Snyk scan step. Set to true to run Snyk scan."
     required: false
@@ -143,6 +147,8 @@ runs:
 
     - name: Scan docker image with TruffleHog
       id: scan-docker-image
+      env:
+        FAIL_ON_SECRETS_FOUND: ${{ inputs.fail-on-secrets-found }}
       shell: bash
       run: |
         python $GITHUB_ACTION_PATH/docker-image-scanner.py --image ${{ runner.temp }}/local-docker-image.tar
