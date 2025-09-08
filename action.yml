@@ -111,7 +111,7 @@ runs:
         outputs: type=docker,dest=${{ runner.temp }}/local-docker-image.tar
 
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.x"
 
