@@ -7,8 +7,6 @@ import pathspec
 
 from typing import List, Dict
 
-FAIL_ON_SECRETS_FOUND = os.getenv("FAIL_ON_SECRETS_FOUND", "false").lower() == "true"
-
 
 def format_image_path(image_path: str) -> str:
     """Format the image path to use file:/// prefix with absolute path."""
@@ -113,15 +111,10 @@ def main():
             print(
                 f"Found unverified secret {redacted_secret} in file={file} layer={layer}"
             )
-
-        # If secrets are found and FAIL_ON_SECRETS_FOUND is true, exit with error
-        print("Secrets found in the image! 🚨")
-        sys.exit(1 if FAIL_ON_SECRETS_FOUND else 0)
+        sys.exit(1)
     else:
-        print("No secrets found in the image! 🚀")
         sys.exit(0)
 
 
 if __name__ == "__main__":
-    print(f"Should fail on secrets found? {FAIL_ON_SECRETS_FOUND}")
     main()
