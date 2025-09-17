@@ -107,9 +107,10 @@ def main():
                 .get("Docker", {})
                 .get("layer", "")
             )
-            redacted_secret = finding["Redacted"]
+            redacted_secret = finding["Redacted"] if finding["Redacted"] != "" else finding["Raw"]
+            detector = finding["DetectorName"]
             print(
-                f"Found unverified secret {redacted_secret} in file={file} layer={layer}"
+                f"Found unverified secret of type='{detector}' with value='{redacted_secret}' in file={file} layer={layer}"
             )
         sys.exit(1)
     else:
