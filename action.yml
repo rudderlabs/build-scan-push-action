@@ -152,9 +152,9 @@ runs:
       if: success()
       uses: docker/build-push-action@v6
       with:
-        load: ${{ inputs.load }}
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
+        load: ${{ inputs.load }}
         platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
