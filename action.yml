@@ -51,6 +51,9 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
+  aws-signer-profile-arn:
+    required: true
+    description: "AWS Signer profile ARN"
   snyk-enabled:
     description: "Enable Snyk scan step. Set to true to run Snyk scan."
     required: false
@@ -243,6 +246,7 @@ runs:
     - name: Sign the images using Notation CLI
       if: ${{ inputs.push == 'true' }}
       env:
+        AWS_SIGNER_PROFILE_ARN: ${{ inputs.aws-signer-profile-arn }}
         DIGEST: ${{ steps.build-and-push.outputs.digest }}
         TAGS: ${{ inputs.tags }}
       shell: bash
@@ -252,5 +256,5 @@ runs:
           notation sign -v \
           ${tag}@${DIGEST} \
           --plugin "com.amazonaws.signer.notation.plugin" \
-          --id "arn:aws:signer:us-east-1:422074288268:/signing-profiles/rudderstack_oci_20251017174440652700000001"
+          --id "${AWS_SIGNER_PROFILE_ARN}"
         done
