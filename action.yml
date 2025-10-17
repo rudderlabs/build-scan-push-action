@@ -226,6 +226,12 @@ runs:
           exit 1
         fi
 
+        echo "Downloading public key..."
+        curl -fsSL https://d2hvyiie56hcat.cloudfront.net/linux/public.key -o public.key
+
+        echo "Importing public key..."
+        gpg --import public.key
+
         echo "Verifying Notation CLI signature..."
         gpg --verify notation.deb.sig notation.deb
 
