@@ -205,9 +205,20 @@ runs:
     - name: Setup Notation CLI
       shell: bash
       run: |
+        if [[ "${{ runner.arch }}" == "X64" ]]; then
         curl -fsSL \
-         https://d2hvyiie56hcat.cloudfront.net/linux/${{ runner.arch }}/installer/deb/latest/aws-signer-notation-cli_${{ runner.arch }}.deb \
+         https://d2hvyiie56hcat.cloudfront.net/linux/amd64/installer/deb/latest/aws-signer-notation-cli_amd64.deb \
          -o notation.deb
+        elif [[ "${{ runner.arch }}" == "ARM64" ]]; then
+        curl -fsSL \
+         https://d2hvyiie56hcat.cloudfront.net/linux/arm64/installer/deb/latest/aws-signer-notation-cli_arm64.deb \
+         -o notation.deb
+        else
+          echo "Unsupported architecture: ${{ runner.arch }}"
+          exit 1
+        fi
+
+        echo "Installing Notation CLI..."
         sudo dpkg -i -E notation.deb
         notation version
         notation plugin ls
