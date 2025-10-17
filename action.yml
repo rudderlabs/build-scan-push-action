@@ -202,18 +202,27 @@ runs:
           --file="$SNYK_FILE" \
           "$IMAGE"
 
-    - name: Install Cosign
-      uses: sigstore/cosign-installer@v3.8.1
+    - name: Setup Notation CLI
+      shell: bash
+      run: |
+        curl -fsSL \
+         https://d2hvyiie56hcat.cloudfront.net/linux/${{ runner.arch }}/installer/deb/latest/aws-signer-notation-cli_${{ runner.arch }}.deb \
+         -o notation.deb
+        sudo dpkg -i -E notation.deb
+        notation version
+        notation plugin ls
 
-    - name: Sign the images with GitHub OIDC Token
+    - name: Sign the images using Notation CLI
       if: ${{ inputs.push == 'true' }}
       env:
         DIGEST: ${{ steps.build-and-push.outputs.digest }}
         TAGS: ${{ inputs.tags }}
       shell: bash
       run: |
-        images=""
         for tag in ${TAGS}; do
-          images+="${tag}@${DIGEST} "
+          echo "Signing image: ${tag}@${DIGEST}"
+          notation sign -v \
+          ${tag}@${DIGEST} \
+          --plugin "com.amazonaws.signer.notation.plugin" \
+          --id "arn:aws:signer:us-east-1:422074288268:/signing-profiles/rudderstack_oci_20251017174440652700000001"
         done
-        cosign sign  --yes ${images}
