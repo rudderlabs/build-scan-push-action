@@ -169,7 +169,7 @@ runs:
 
     - name: Setup Node.js
       if: ${{ inputs.snyk-enabled == 'true' }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '22'
 
