@@ -54,19 +54,6 @@ inputs:
   aws-signer-profile-arn:
     required: true
     description: "AWS Signer profile ARN"
-  snyk-enabled:
-    description: "Enable Snyk scan step. Set to true to run Snyk scan."
-    required: false
-    default: false
-  snyk-token:
-    description: "Snyk API token. Required if snyk-enabled is true."
-    required: false
-  snyk-org:
-    description: "Snyk organization slug (optional)."
-    required: false
-  snyk-project-name:
-    description: "Project name for Snyk dashboard (optional)."
-    required: false
 
 outputs:
   imageid:
@@ -169,41 +156,6 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
-
-    - name: Setup Node.js
-      if: ${{ inputs.snyk-enabled == 'true' }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-
-    - name: Scan docker image with Snyk
-      shell: bash
-      if: ${{ inputs.snyk-enabled == 'true' }}
-      env:
-        SNYK_TOKEN: ${{ inputs.snyk-token }}
-        SNYK_ORG: ${{ inputs.snyk-org }}
-        SNYK_PROJECT_NAME: ${{ inputs.snyk-project-name }}
-        SNYK_FILE: ${{ inputs.file }}
-        TAGS: ${{ inputs.tags }}
-        DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      run: |
-        echo "Installing Snyk CLI..."
-        npm install -g snyk
-
-        echo "Snyk CLI Version"
-        snyk --version
-
-        IMAGE="$(echo -n "$TAGS@$DIGEST" | tr -d '\n')"
-        echo "Snyk Org: $SNYK_ORG"
-        echo "Snyk Project Name: $SNYK_PROJECT_NAME"
-        echo "Image to scan: $IMAGE"
-
-        # Monitor to Snyk dashboard
-        snyk container monitor \
-          --org="$SNYK_ORG" \
-          --project-name="$SNYK_PROJECT_NAME" \
-          --file="$SNYK_FILE" \
-          "$IMAGE"
 
     - name: Setup Notation CLI
       if: ${{ inputs.push == 'true' }}
