@@ -207,6 +207,7 @@ runs:
           echo "Signing image: ${tag}@${DIGEST}"
           notation sign -v \
           ${tag}@${DIGEST} \
+          --force-referrers-tag \
           --plugin "com.amazonaws.signer.notation.plugin" \
           --id "${AWS_SIGNER_PROFILE_ARN}"
         done
