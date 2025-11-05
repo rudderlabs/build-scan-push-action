@@ -51,9 +51,12 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
+  aws-signer-public-key:
+    description: "Public key for AWS Signer"
+    required: false
   aws-signer-profile-arn:
-    required: true
     description: "AWS Signer profile ARN"
+    required: false
 
 outputs:
   imageid:
@@ -159,41 +162,9 @@ runs:
 
     - name: Setup Notation CLI
       if: ${{ inputs.push == 'true' }}
-      shell: bash
-      run: |
-        echo "Installing Notation CLI for architecture: ${{ runner.arch }}"
-        if [[ "${{ runner.arch }}" == "X64" ]]; then
-          curl -fsSL \
-          https://d2hvyiie56hcat.cloudfront.net/linux/amd64/installer/deb/latest/aws-signer-notation-cli_amd64.deb \
-          -o notation.deb
-          curl -fsSL \
-          https://d2hvyiie56hcat.cloudfront.net/linux/amd64/installer/deb/latest/aws-signer-notation-cli_amd64.deb.sig \
-          -o notation.deb.sig
-        elif [[ "${{ runner.arch }}" == "ARM64" ]]; then
-          curl -fsSL \
-          https://d2hvyiie56hcat.cloudfront.net/linux/arm64/installer/deb/latest/aws-signer-notation-cli_arm64.deb \
-          -o notation.deb
-          curl -fsSL \
-          https://d2hvyiie56hcat.cloudfront.net/linux/arm64/installer/deb/latest/aws-signer-notation-cli_arm64.deb.sig \
-          -o notation.deb.sig
-        else
-          echo "Unsupported architecture: ${{ runner.arch }}"
-          exit 1
-        fi
-
-        echo "Downloading public key..."
-        curl -fsSL https://d2hvyiie56hcat.cloudfront.net/linux/public.key -o public.key
-
-        echo "Importing public key..."
-        gpg --import public.key
-
-        echo "Verifying Notation CLI signature..."
-        gpg --verify notation.deb.sig notation.deb
-
-        echo "Installing Notation CLI..."
-        sudo dpkg -i -E notation.deb
-        notation version
-        notation plugin ls
+      uses: rudderlabs/setup-aws-signer-notation-cli@2cdd7a8d005b02a80a122a2059d51434ed69ee90
+      with:
+        public-key: ${{ inputs.aws-signer-public-key }}
 
     - name: Sign the images using Notation CLI
       if: ${{ inputs.push == 'true' }}
