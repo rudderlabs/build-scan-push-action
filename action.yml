@@ -51,18 +51,11 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
-  snyk-enabled:
-    description: "Enable Snyk scan step. Set to true to run Snyk scan."
+  aws-signer-public-key:
+    description: "Public key for AWS Signer"
     required: false
-    default: false
-  snyk-token:
-    description: "Snyk API token. Required if snyk-enabled is true."
-    required: false
-  snyk-org:
-    description: "Snyk organization slug (optional)."
-    required: false
-  snyk-project-name:
-    description: "Project name for Snyk dashboard (optional)."
+  aws-signer-profile-arn:
+    description: "AWS Signer profile ARN"
     required: false
 
 outputs:
@@ -167,53 +160,25 @@ runs:
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
 
-    - name: Setup Node.js
-      if: ${{ inputs.snyk-enabled == 'true' }}
-      uses: actions/setup-node@v4
+    - name: Setup Notation CLI
+      if: ${{ inputs.push == 'true' }}
+      uses: rudderlabs/setup-aws-signer-notation-cli@2cdd7a8d005b02a80a122a2059d51434ed69ee90
       with:
-        node-version: '22'
+        public-key: ${{ inputs.aws-signer-public-key }}
 
-    - name: Scan docker image with Snyk
-      shell: bash
-      if: ${{ inputs.snyk-enabled == 'true' }}
-      env:
-        SNYK_TOKEN: ${{ inputs.snyk-token }}
-        SNYK_ORG: ${{ inputs.snyk-org }}
-        SNYK_PROJECT_NAME: ${{ inputs.snyk-project-name }}
-        SNYK_FILE: ${{ inputs.file }}
-        TAGS: ${{ inputs.tags }}
-        DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      run: |
-        echo "Installing Snyk CLI..."
-        npm install -g snyk
-
-        echo "Snyk CLI Version"
-        snyk --version
-
-        IMAGE="$(echo -n "$TAGS@$DIGEST" | tr -d '\n')"
-        echo "Snyk Org: $SNYK_ORG"
-        echo "Snyk Project Name: $SNYK_PROJECT_NAME"
-        echo "Image to scan: $IMAGE"
-
-        # Monitor to Snyk dashboard
-        snyk container monitor \
-          --org="$SNYK_ORG" \
-          --project-name="$SNYK_PROJECT_NAME" \
-          --file="$SNYK_FILE" \
-          "$IMAGE"
-
-    - name: Install Cosign
-      uses: sigstore/cosign-installer@v3.8.1
-
-    - name: Sign the images with GitHub OIDC Token
+    - name: Sign the images using Notation CLI
       if: ${{ inputs.push == 'true' }}
       env:
+        AWS_SIGNER_PROFILE_ARN: ${{ inputs.aws-signer-profile-arn }}
         DIGEST: ${{ steps.build-and-push.outputs.digest }}
         TAGS: ${{ inputs.tags }}
       shell: bash
       run: |
-        images=""
         for tag in ${TAGS}; do
-          images+="${tag}@${DIGEST} "
+          echo "Signing image: ${tag}@${DIGEST}"
+          notation sign -v \
+          ${tag}@${DIGEST} \
+          --force-referrers-tag=false \
+          --plugin "com.amazonaws.signer.notation.plugin" \
+          --id "${AWS_SIGNER_PROFILE_ARN}"
         done
-        cosign sign  --yes ${images}
