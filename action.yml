@@ -51,12 +51,6 @@ inputs:
   target:
     description: "Set the target build stage to build"
     required: false
-  aws-signer-public-key:
-    description: "Public key for AWS Signer"
-    required: false
-  aws-signer-profile-arn:
-    description: "AWS Signer profile ARN"
-    required: false
 
 outputs:
   imageid:
@@ -159,26 +153,3 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
-
-    - name: Setup Notation CLI
-      if: ${{ inputs.push == 'true' }}
-      uses: rudderlabs/setup-aws-signer-notation-cli@2cdd7a8d005b02a80a122a2059d51434ed69ee90
-      with:
-        public-key: ${{ inputs.aws-signer-public-key }}
-
-    - name: Sign the images using Notation CLI
-      if: ${{ inputs.push == 'true' }}
-      env:
-        AWS_SIGNER_PROFILE_ARN: ${{ inputs.aws-signer-profile-arn }}
-        DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        TAGS: ${{ inputs.tags }}
-      shell: bash
-      run: |
-        for tag in ${TAGS}; do
-          echo "Signing image: ${tag}@${DIGEST}"
-          notation sign -v \
-          ${tag}@${DIGEST} \
-          --force-referrers-tag=false \
-          --plugin "com.amazonaws.signer.notation.plugin" \
-          --id "${AWS_SIGNER_PROFILE_ARN}"
-        done
