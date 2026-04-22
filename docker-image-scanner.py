@@ -107,7 +107,14 @@ def main():
                 .get("Docker", {})
                 .get("layer", "")
             )
-            redacted_secret = finding["Redacted"] if finding["Redacted"] != "" else finding["Raw"]
+            raw = finding.get("Raw", "")
+            redacted = finding.get("Redacted", "")
+            if redacted:
+                redacted_secret = redacted
+            elif raw:
+                redacted_secret = raw[:4] + "****" if len(raw) > 4 else "****"
+            else:
+                redacted_secret = "****"
             detector = finding["DetectorName"]
             print(
                 f"Found unverified secret of type='{detector}' with value='{redacted_secret}' in file={file} layer={layer}"
