@@ -7,3 +7,5 @@
 node_modules/
 site-packages/
 venv/
+/app/node_modules/
+/root/.npm/_cacache
