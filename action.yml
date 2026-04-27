@@ -69,17 +69,19 @@ runs:
     - name: Select single platform
       id: select-single-platform
       shell: bash
+      env:
+        INPUT_PLATFORMS: ${{ inputs.platforms }}
       run: |
-        if [[ "${{ inputs.platforms }}" == *","* || "${{ inputs.platforms }}" == *"["* || "${{ inputs.platforms }}" == *"-"* || "${{ inputs.platforms }}" == "" ]]; then
+        if [[ "$INPUT_PLATFORMS" == *","* || "$INPUT_PLATFORMS" == *"["* || "$INPUT_PLATFORMS" == *"-"* || "$INPUT_PLATFORMS" == "" ]]; then
           echo "platform=linux/amd64" >> $GITHUB_OUTPUT
         else
-          echo "platform=${{ inputs.platforms }}" >> $GITHUB_OUTPUT
+          echo "platform=$INPUT_PLATFORMS" >> $GITHUB_OUTPUT
         fi
 
     - name: Build image
       uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
       with:
-        context: ${{ inputs.context }}
+        context: ${{ inputs.context }}  # zizmor: ignore[template-injection] passed to action as input, not eval'd
         file: ${{ inputs.file }}
         platforms: ${{ steps.select-single-platform.outputs.platform }}
         push: false
@@ -139,7 +141,7 @@ runs:
       if: success()
       uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
       with:
-        context: ${{ inputs.context }}
+        context: ${{ inputs.context }}  # zizmor: ignore[template-injection] passed to action as input, not eval'd
         file: ${{ inputs.file }}
         platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push }}
