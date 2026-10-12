@@ -22,3 +22,5 @@ The action builds a Docker image, scans it for secrets with TruffleHog, and push
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m unittest discover -s tests
 ```
+
+CI runs `.github/workflows/test.yml` on each pull request. The `unit` job runs these tests. The `action` job runs the action on `tests/fixtures/image`. Then `tests/check-trufflehog-install.sh` fails if the workspace changed or `trufflehog` on PATH is not the copy in `$RUNNER_TEMP`.

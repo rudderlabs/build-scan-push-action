@@ -18,6 +18,15 @@ class CommandTest(unittest.TestCase):
         self.assertIn("--no-verification", cmd)
         self.assertEqual(cmd[:2], ["trufflehog", "docker"])
 
+    def test_command_scans_the_image_and_prints_json(self):
+        # The scanner parses JSON lines only. Without --json it gets no findings and passes.
+        cmd = scanner.build_command("image.tar")
+        self.assertEqual(
+            cmd[:4],
+            ["trufflehog", "docker", "--image", "file://" + os.path.abspath("image.tar")],
+        )
+        self.assertCountEqual(cmd[4:], ["--json", "--no-update", "--no-verification"])
+
     def test_scan_runs_the_built_command(self):
         seen = []
 

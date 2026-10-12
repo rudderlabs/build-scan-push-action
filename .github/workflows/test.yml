@@ -1,0 +1,41 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.x"
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+
+  action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Run the action on a small image
+        uses: ./ # zizmor: ignore[self-repository] actionlint 1.7 rejects the $/ form
+        with:
+          context: tests/fixtures/image
+          file: tests/fixtures/image/Dockerfile
+          tags: build-scan-push-action-test:ci
+          push: "false"
+      - name: Check the TruffleHog install
+        run: tests/check-trufflehog-install.sh
