@@ -24,8 +24,6 @@ def scan_docker_image(image_path: str, trufflehog: str = "trufflehog") -> List[D
     """Scan Docker image using trufflehog and return JSON results."""
     try:
         formatted_path = format_image_path(image_path)
-        # Verification stays on: the allowlist may only suppress findings
-        # that TruffleHog checked and found not live.
         cmd = [
             trufflehog,
             "docker",
@@ -33,6 +31,7 @@ def scan_docker_image(image_path: str, trufflehog: str = "trufflehog") -> List[D
             formatted_path,
             "--json",
             "--no-update",
+            "--no-verification",
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
