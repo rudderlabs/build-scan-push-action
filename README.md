@@ -21,23 +21,15 @@ in your GitHub Workflows.
 For more info, refer the documentation of
 [docker-build-push](https://github.com/docker/build-push-action) GitHub Action.
 
-## False positives
+## Ignoring false positives
 
-The action owns the list of known false positives. Repositories cannot extend it.
+By default TruffleHog doesn't support excluding file paths when
+scanning docker images. In our GitHub Action, we have added support
+to exclude paths using a `.truffleignore` file.
 
-- The list is [`scan-allowlist.txt`](scan-allowlist.txt). Each entry is
-  `<Detector> /<path>`: a TruffleHog detector name and a
-  [gitignore-style pattern](https://git-scm.com/docs/gitignore#_pattern_format)
-  matched against absolute paths in the image.
-- The scan never enables TruffleHog verification, because verification sends
-  candidate strings to third-party APIs. Every finding is unverified.
-- An entry suppresses unverified findings of its detector on its path. The
-  scanner never suppresses a finding marked verified or one with a verification
-  error.
-- The action ignores a `.truffleignore` file in your repository and logs a warning.
-- To add a false positive, open a PR on this repository. Put a comment above the
-  entry with the base image digest, the matched content, and the package that
-  owns the file. See [AGENTS.md](AGENTS.md) for the rules.
+Create a `.truffleignore` file at the root of your repository. Add paths
+that you want to exclude in [gitignore-style pattern](https://git-scm.com/docs/gitignore)
+format. All paths that match these patterns are excluded in TruffleHog scans.
 
 ## Current Limitations
 
@@ -63,15 +55,6 @@ If you want to use an input which is not in the above mentioned list,
 feel free to contribute or reach out to infra team for support.
 
 ## Upgrade Guide
-
-### From v2.3.x to v2.4.x
-
-- The action no longer reads `.truffleignore` from your repository. Delete the file.
-  If the scan now fails on a false positive, add the path to `scan-allowlist.txt`
-  in this repository.
-- The action installs TruffleHog in `$RUNNER_TEMP` and no longer writes to your
-  workspace. You can drop a `path: src` checkout and any step that copies
-  `.truffleignore` into place.
 
 ### From v1.4.x to v1.5.x
 

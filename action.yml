@@ -119,28 +119,22 @@ runs:
     - name: Install TruffleHog
       shell: bash
       run: |
-        # Install into RUNNER_TEMP so the caller workspace stays untouched.
         TRUFFLEHOG_VERSION="3.88.5"
-        case "$TRUFFLEHOG_ARCH" in
-          amd64) TRUFFLEHOG_SHA256="a648c6252a808044976b9db0aad5eb33905e6a47b2ecc923a44085000bc8ed92" ;;
-          arm64) TRUFFLEHOG_SHA256="a7e841ef70781f5a0658370660156d6924945db1f2f7b9d130f705459c86362d" ;;
-          *) echo "Unsupported architecture: $TRUFFLEHOG_ARCH"; exit 1 ;;
-        esac
-        TRUFFLEHOG_DIR="$RUNNER_TEMP/trufflehog"
-        mkdir -p "$TRUFFLEHOG_DIR"
-        TARBALL="$TRUFFLEHOG_DIR/trufflehog.tar.gz"
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
-        curl -fsSL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o "$TARBALL"
-        echo "${TRUFFLEHOG_SHA256}  ${TARBALL}" | sha256sum -c -
-        tar -xzf "$TARBALL" -C "$TRUFFLEHOG_DIR" trufflehog
-        chmod +x "$TRUFFLEHOG_DIR/trufflehog"
-        rm "$TARBALL"
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o trufflehog.tar.gz
+        tar -xzf trufflehog.tar.gz
+        chmod +x trufflehog
+
+        sudo mv trufflehog /usr/local/bin/
+
+        # Cleanup
+        rm trufflehog.tar.gz
 
     - name: Scan docker image with TruffleHog
       id: scan-docker-image
       shell: bash
       run: |
-        python "$GITHUB_ACTION_PATH/docker-image-scanner.py" --image "$RUNNER_TEMP/local-docker-image.tar" --trufflehog "$RUNNER_TEMP/trufflehog/trufflehog"
+        python $GITHUB_ACTION_PATH/docker-image-scanner.py --image ${{ runner.temp }}/local-docker-image.tar
 
     - name: Build and push
       id: build-and-push
