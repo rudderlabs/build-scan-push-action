@@ -25,15 +25,18 @@ For more info, refer the documentation of
 
 The action owns the list of known false positives. Repositories cannot extend it.
 
-- The list is [`scan-allowlist.txt`](scan-allowlist.txt). It uses
-  [gitignore-style patterns](https://git-scm.com/docs/gitignore#_pattern_format),
+- The list is [`scan-allowlist.txt`](scan-allowlist.txt). Each entry is
+  `<Detector> /<path>`: a TruffleHog detector name and a
+  [gitignore-style pattern](https://git-scm.com/docs/gitignore#_pattern_format)
   matched against absolute paths in the image.
 - The scan runs with TruffleHog verification off, as before, so every finding is
-  unverified. A match suppresses an unverified finding only. The scanner never
+  unverified. An entry suppresses unverified findings of its detector on its path. The scanner never
   suppresses a finding marked verified or one with a verification error.
 - The action ignores a `.truffleignore` file in your repository and logs a warning.
 - To add a false positive, open a PR on this repository. Put a comment above the
-  pattern that says why it is safe and links the run that showed it.
+  entry with the matched content, the image, the owning package, and the run
+  that showed it. Keep the path narrow: the entry hides any secret of that
+  detector on that path.
 
 ## Current Limitations
 

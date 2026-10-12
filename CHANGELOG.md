@@ -5,7 +5,8 @@
 ### Behavior changes
 
 - The action ignores a repository `.truffleignore` file and logs a warning. The action owns
-  the false-positive list in `scan-allowlist.txt`. Each entry links the scan that showed it.
+  the false-positive list in `scan-allowlist.txt`. Each entry is one detector and one path,
+  and links the scan that showed it.
 - The allowlist suppresses unverified findings only. The scan still runs with verification
   off, as before. The scanner never suppresses a finding marked verified or one with a
   verification error.
