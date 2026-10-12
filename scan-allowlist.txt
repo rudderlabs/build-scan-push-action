@@ -1,0 +1,31 @@
+# Central allowlist for the TruffleHog image scan.
+#
+# Format: gitignore-style patterns, matched against absolute paths in the image.
+# Start each pattern with "/" so it matches only at the image root.
+#
+# Rules:
+# - A match suppresses an UNVERIFIED finding only. A verified finding, or a
+#   finding whose verification failed with an error, always fails the build.
+# - Add a pattern only for a false positive seen in a real scan. Put a comment
+#   above it that says why it is safe and links the run or repo that showed it.
+# - Repositories cannot extend this list. A repo-level .truffleignore is ignored.
+
+# Ubuntu noble: gpgsm binary data matches the Box detector.
+# Evidence: rudder-snowpipe-clients PR #100, run 38235149698.
+/usr/bin/gpgsm
+
+# Ubuntu noble: perl binary data matches the Github detector.
+# Evidence: rudder-snowpipe-clients PR #100, run 38235149698.
+/usr/bin/perl*
+
+# Ubuntu noble: GnuTLS shared library data matches the Box detector (amd64 and arm64).
+# Evidence: rudder-snowpipe-clients PR #100, run 38235149698.
+/usr/lib/*-linux-gnu/libgnutls.so*
+
+# Debian/Ubuntu: dpkg checksum lists hold MD5 hashes that match the Box detector.
+# Evidence: rudder-snowpipe-clients PR #100, run 38235149698.
+/var/lib/dpkg/info/*.md5sums
+
+# Official node images ship yarn with its bundled keys.
+# Evidence: rudder-control-plane .truffleignore ("opt/yarn*").
+/opt/yarn*

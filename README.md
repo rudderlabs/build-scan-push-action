@@ -21,15 +21,18 @@ in your GitHub Workflows.
 For more info, refer the documentation of
 [docker-build-push](https://github.com/docker/build-push-action) GitHub Action.
 
-## Ignoring false positives
+## False positives
 
-By default TruffleHog doesn't support excluding file paths when
-scanning docker images. In our GitHub Action, we have added support
-to exclude paths using a `.truffleignore` file.
+The action owns the list of known false positives. Repositories cannot extend it.
 
-Create a `.truffleignore` file at the root of your repository. Add paths
-that you want to exclude in [gitignore-style pattern](https://git-scm.com/docs/gitignore)
-format. All paths that match these patterns are excluded in TruffleHog scans.
+- The list is [`scan-allowlist.txt`](scan-allowlist.txt). It uses
+  [gitignore-style patterns](https://git-scm.com/docs/gitignore#_pattern_format),
+  matched against absolute paths in the image.
+- A match suppresses an unverified finding only. A verified finding fails the build
+  on any path. A finding whose verification returned an error also fails the build.
+- The action ignores a `.truffleignore` file in your repository and logs a warning.
+- To add a false positive, open a PR on this repository. Put a comment above the
+  pattern that says why it is safe and links the run that showed it.
 
 ## Current Limitations
 
@@ -55,6 +58,17 @@ If you want to use an input which is not in the above mentioned list,
 feel free to contribute or reach out to infra team for support.
 
 ## Upgrade Guide
+
+### From v2.3.x to v2.4.x
+
+- The action no longer reads `.truffleignore` from your repository. Delete the file.
+  If the scan now fails on a false positive, add the path to `scan-allowlist.txt`
+  in this repository.
+- TruffleHog now verifies findings. A live secret fails the build even on an
+  allowlisted path.
+- The action installs TruffleHog in `$RUNNER_TEMP` and no longer writes to your
+  workspace. You can drop a `path: src` checkout and any step that copies
+  `.truffleignore` into place.
 
 ### From v1.4.x to v1.5.x
 
