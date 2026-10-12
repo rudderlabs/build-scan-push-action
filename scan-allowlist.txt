@@ -7,15 +7,12 @@
 # - An entry with a missing detector or a relative path fails the scan.
 #
 # Rules:
-# - The scan runs with verification off, so every finding is unverified. An
-#   entry suppresses unverified findings of its detector on its path. It can
-#   hide a live secret of that detector on that path, so keep entries narrow.
-# - The scanner never suppresses a finding marked verified or one with a
-#   verification error.
-# - Add an entry only for a false positive seen in a real scan. Above it, name
-#   the matched content, the image, the owning package, and the run or repo
-#   that showed it.
-# - Repositories cannot extend this list. A repo-level .truffleignore is ignored.
+# - Each entry needs one detector, one anchored path pattern, and evidence.
+# - Evidence: the base image digest that shows the finding with no app code,
+#   the matched content, and the package that owns the file.
+# - An entry suppresses unverified findings only. The scan never enables
+#   verification, because verification sends candidate strings to third-party APIs.
+# - Repositories never add their own ignores. A repo-level .truffleignore is ignored.
 
 # Image: eclipse-temurin:21-jre-noble@sha256:000fd431958bc81a24abe1e8e5f0f0fd3ae365a594bd50aadb20696805f9408c
 # Evidence: rudder-snowpipe-clients PR #100, run 38235149698.

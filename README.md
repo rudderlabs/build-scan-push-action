@@ -29,14 +29,15 @@ The action owns the list of known false positives. Repositories cannot extend it
   `<Detector> /<path>`: a TruffleHog detector name and a
   [gitignore-style pattern](https://git-scm.com/docs/gitignore#_pattern_format)
   matched against absolute paths in the image.
-- The scan runs with TruffleHog verification off, as before, so every finding is
-  unverified. An entry suppresses unverified findings of its detector on its path. The scanner never
-  suppresses a finding marked verified or one with a verification error.
+- The scan never enables TruffleHog verification, because verification sends
+  candidate strings to third-party APIs. Every finding is unverified.
+- An entry suppresses unverified findings of its detector on its path. The
+  scanner never suppresses a finding marked verified or one with a verification
+  error.
 - The action ignores a `.truffleignore` file in your repository and logs a warning.
 - To add a false positive, open a PR on this repository. Put a comment above the
-  entry with the matched content, the image, the owning package, and the run
-  that showed it. Keep the path narrow: the entry hides any secret of that
-  detector on that path.
+  entry with the base image digest, the matched content, and the package that
+  owns the file. See [AGENTS.md](AGENTS.md) for the rules.
 
 ## Current Limitations
 
