@@ -20,15 +20,10 @@ class CommandTest(unittest.TestCase):
 
     def test_command_scans_the_image_and_prints_json(self):
         # The scanner parses JSON lines only. Without --json it gets no findings and passes.
-        cmd = scanner.build_command("image.tar")
+        cmd = scanner.build_command("/images/app.tar")
         self.assertEqual(
             cmd[:4],
-            [
-                "trufflehog",
-                "docker",
-                "--image",
-                "file://" + os.path.abspath("image.tar"),
-            ],
+            ["trufflehog", "docker", "--image", "file:///images/app.tar"],
         )
         self.assertCountEqual(cmd[4:], ["--json", "--no-update", "--no-verification"])
 
@@ -40,8 +35,8 @@ class CommandTest(unittest.TestCase):
             return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
 
         with mock.patch.object(scanner.subprocess, "run", fake_run):
-            scanner.scan_docker_image("image.tar")
-        self.assertEqual(seen, [scanner.build_command("image.tar")])
+            scanner.scan_docker_image("build/other.tar")
+        self.assertEqual(seen, [scanner.build_command("build/other.tar")])
         self.assertIn("--no-verification", seen[0])
 
 

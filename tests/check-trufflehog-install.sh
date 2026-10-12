@@ -2,7 +2,7 @@
 # Runs after the action in CI. TruffleHog must come from $RUNNER_TEMP and leave no file in the workspace.
 set -euo pipefail
 
-changes="$(git status --porcelain --untracked-files=all)"
+changes="$(git status --porcelain --untracked-files=all --ignored)"
 if [[ -n "$changes" ]]; then
   echo "The action changed the workspace:" >&2
   echo "$changes" >&2
