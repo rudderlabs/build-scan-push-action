@@ -31,6 +31,8 @@ def scan_docker_image(image_path: str, trufflehog: str = "trufflehog") -> List[D
             formatted_path,
             "--json",
             "--no-update",
+            # Verification is off, so the allowlist suppresses unverified findings
+            # by detector and path. Each allowlist entry must cite its evidence.
             "--no-verification",
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -54,10 +56,42 @@ def scan_docker_image(image_path: str, trufflehog: str = "trufflehog") -> List[D
         sys.exit(1)
 
 
-def load_allowlist(path: str) -> pathspec.PathSpec:
+class Allowlist:
+    """Path patterns per TruffleHog detector. Lines are "<Detector> /<pattern>"."""
+
+    def __init__(self, specs: Dict[str, pathspec.PathSpec]):
+        self.specs = specs
+
+    def matches(self, detector: str, path: str) -> bool:
+        spec = self.specs.get(detector.lower())
+        return bool(path) and spec is not None and spec.match_file(path)
+
+
+def parse_allowlist(lines) -> Allowlist:
+    """Parse the allowlist. A malformed line fails the scan instead of widening it."""
+    patterns: Dict[str, List[str]] = {}
+    for n, line in enumerate(lines, 1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) != 2:
+            raise ValueError(f"allowlist line {n}: want '<Detector> /<path>', got {line!r}")
+        detector, pattern = parts
+        if not detector.isalnum():
+            raise ValueError(f"allowlist line {n}: detector must be one name, got {detector!r}")
+        if not pattern.startswith("/"):
+            raise ValueError(f"allowlist line {n}: path must start with '/', got {pattern!r}")
+        patterns.setdefault(detector.lower(), []).append(pattern)
+    return Allowlist(
+        {d: pathspec.PathSpec.from_lines("gitwildmatch", p) for d, p in patterns.items()}
+    )
+
+
+def load_allowlist(path: str) -> Allowlist:
     """Load the central allowlist. A missing file is a broken action, so fail."""
     with open(path, "r") as fh:
-        return pathspec.PathSpec.from_lines("gitwildmatch", fh)
+        return parse_allowlist(fh)
 
 
 def warn_repo_ignore(path: str = REPO_IGNORE_FILE) -> bool:
@@ -91,15 +125,14 @@ def verification_status(finding: Dict) -> str:
     return "unverified"
 
 
-def is_suppressed(finding: Dict, spec: pathspec.PathSpec) -> bool:
-    """Only an unverified finding on an allowlisted path is suppressed."""
+def is_suppressed(finding: Dict, spec: Allowlist) -> bool:
+    """Only an unverified finding of an allowlisted detector on its path is suppressed."""
     if verification_status(finding) != "unverified":
         return False
-    path = finding_file(finding)
-    return bool(path) and spec.match_file(path)
+    return spec.matches(str(finding.get("DetectorName", "")), finding_file(finding))
 
 
-def filter_results(findings: List[Dict], spec: pathspec.PathSpec) -> List[Dict]:
+def filter_results(findings: List[Dict], spec: Allowlist) -> List[Dict]:
     return [f for f in findings if not is_suppressed(f, spec)]
 
 
@@ -142,7 +175,7 @@ def run(
     remaining = filter_results(findings, spec)
     suppressed = len(findings) - len(remaining)
     if suppressed:
-        print(f"Suppressed {suppressed} unverified finding(s) on allowlisted paths.")
+        print(f"Suppressed {suppressed} unverified finding(s) matching the allowlist.")
     if remaining:
         report(remaining)
         return 1

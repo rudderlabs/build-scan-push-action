@@ -13,9 +13,9 @@ scanner = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(scanner)
 
 
-def finding(path, verified=False, verification_error=""):
+def finding(path, verified=False, verification_error="", detector="Box"):
     f = {
-        "DetectorName": "Box",
+        "DetectorName": detector,
         "Verified": verified,
         "Redacted": "",
         "Raw": "abcdefgh",
@@ -58,7 +58,8 @@ class ScanTest(unittest.TestCase):
             (
                 "snowpipe noble paths, unverified: suppressed",
                 [
-                    finding("/usr/bin/perl"),
+                    finding("/usr/bin/perl", detector="Github"),
+                    finding("/usr/bin/perl5.38.2", detector="Github"),
                     finding("/usr/lib/x86_64-linux-gnu/libgnutls.so.30.37.1"),
                     finding("/usr/lib/aarch64-linux-gnu/libgnutls.so.30.37.1"),
                     finding("/var/lib/dpkg/info/keyboxd.md5sums"),
@@ -66,7 +67,29 @@ class ScanTest(unittest.TestCase):
                 ],
                 0,
             ),
-            ("node image yarn, unverified: suppressed", [finding("/opt/yarn-v1.22.22/lib/cli.js")], 0),
+            (
+                "node image yarn, unverified: suppressed",
+                [
+                    finding("/opt/yarn-v1.22.22/README.md", detector="Circle"),
+                    finding("/opt/yarn-v1.22.22/lib/cli.js", detector="Gitlab"),
+                ],
+                0,
+            ),
+            (
+                "allowlisted path, other detector: fails",
+                [finding("/usr/bin/gpgsm", detector="AWS")],
+                1,
+            ),
+            (
+                "yarn path, other file: fails",
+                [finding("/opt/yarn-v1.22.22/lib/other.js", detector="Gitlab")],
+                1,
+            ),
+            (
+                "detector match is case-insensitive",
+                [finding("/usr/bin/gpgsm", detector="BOX")],
+                0,
+            ),
             ("empty path: fails", [finding("")], 1),
             ("no findings: passes", [], 0),
             (
@@ -98,6 +121,19 @@ class ScanTest(unittest.TestCase):
     def test_no_warning_without_repo_truffleignore(self):
         _, out = self.run_scan([])
         self.assertNotIn("::warning", out)
+
+    def test_malformed_allowlist_fails(self):
+        bad = [
+            ["/usr/bin/gpgsm"],
+            ["Box usr/bin/gpgsm"],
+            ["* /usr/bin/gpgsm"],
+            ["Box /usr/bin/gpgsm extra"],
+            ["Box !/usr/bin/gpgsm"],
+        ]
+        for lines in bad:
+            with self.subTest(lines[0]):
+                with self.assertRaises(ValueError):
+                    scanner.parse_allowlist(lines)
 
     def test_missing_allowlist_fails(self):
         with self.assertRaises(FileNotFoundError):

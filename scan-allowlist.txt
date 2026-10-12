@@ -1,37 +1,43 @@
 # Central allowlist for the TruffleHog image scan.
 #
-# Format: gitignore-style patterns, matched against absolute paths in the image.
-# Start each pattern with "/" so it matches only at the image root.
+# Format: one entry per line, "<Detector> /<path pattern>".
+# - Detector is the TruffleHog DetectorName (case-insensitive), for example Box.
+# - The path pattern is gitignore-style and matches absolute paths in the image.
+#   It must start with "/" so it matches only at the image root.
+# - An entry with a missing detector or a relative path fails the scan.
 #
 # Rules:
-# - A match suppresses an unverified finding only. The scanner never suppresses
-#   a finding that TruffleHog marks verified or that has a verification error.
-#   The scan runs with verification off, so today every finding is unverified.
-# - Add a pattern only for a false positive seen in a real scan. Above it, name
-#   the detector, the matched content, the image, the owning package, and the
-#   run or repo that showed it.
+# - The scan runs with verification off, so every finding is unverified. An
+#   entry suppresses unverified findings of its detector on its path. It can
+#   hide a live secret of that detector on that path, so keep entries narrow.
+# - The scanner never suppresses a finding marked verified or one with a
+#   verification error.
+# - Add an entry only for a false positive seen in a real scan. Above it, name
+#   the matched content, the image, the owning package, and the run or repo
+#   that showed it.
 # - Repositories cannot extend this list. A repo-level .truffleignore is ignored.
 
 # Image: eclipse-temurin:21-jre-noble@sha256:000fd431958bc81a24abe1e8e5f0f0fd3ae365a594bd50aadb20696805f9408c
 # Evidence: rudder-snowpipe-clients PR #100, run 38235149698.
 
-# Detector Box. Binary data after the do_keybox_new symbol. Package: gpgsm.
-/usr/bin/gpgsm
+# Binary data after the do_keybox_new symbol. Package: gpgsm.
+Box /usr/bin/gpgsm
 
-# Detector Github. A Debian DEBPKG patch note "[GH #23010]" followed by a 40-hex
-# commit id. Package: perl-base. /usr/bin/perl5.38.2 is a hard link to it.
-/usr/bin/perl*
+# A Debian DEBPKG patch note "[GH #23010]" followed by a 40-hex commit id.
+# Package: perl-base. /usr/bin/perl5.38.2 is a hard link to /usr/bin/perl.
+Github /usr/bin/perl
+Github /usr/bin/perl5.*
 
-# Detector Box. A test EC PRIVATE KEY PEM next to the string "boxs" in the
-# GnuTLS self-test data. Package: libgnutls30t64 (amd64 and arm64).
-/usr/lib/*-linux-gnu/libgnutls.so*
+# A test EC PRIVATE KEY PEM next to the string "boxs" in the GnuTLS self-test
+# data. Package: libgnutls30t64 (amd64 and arm64).
+Box /usr/lib/*-linux-gnu/libgnutls.so*
 
-# Detector Box. Package checksum lists: a file name with "keyboxd" or
-# "ISO_10367-BOX", then its MD5 hash. Owner: dpkg (keyboxd, locales, libc6 lists).
-/var/lib/dpkg/info/*.md5sums
+# Package checksum lists: a file name with "keyboxd" or "ISO_10367-BOX", then
+# its MD5 hash. Owner: dpkg (keyboxd, locales and libc6 lists).
+Box /var/lib/dpkg/info/*.md5sums
 
-# Image: node:24.11.0-alpine3.22. Detectors Circle (/opt/yarn-v1.22.22/README.md)
-# and Gitlab (/opt/yarn-v1.22.22/lib/cli.js): example tokens in the yarn release
-# that the node image ships. Evidence: rudder-control-plane .truffleignore
-# "opt/yarn*", added in PR #1246 (commit 723c06e2).
-/opt/yarn*
+# Image: node:24.11.0-alpine3.22. Example tokens in the yarn release that the
+# node image ships. Evidence: rudder-control-plane .truffleignore "opt/yarn*",
+# added in PR #1246 (commit 723c06e2), and a local TruffleHog 3.88.5 scan.
+Circle /opt/yarn-v*/README.md
+Gitlab /opt/yarn-v*/lib/cli.js
