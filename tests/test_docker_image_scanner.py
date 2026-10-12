@@ -2,8 +2,10 @@ import contextlib
 import importlib.util
 import io
 import os
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _spec = importlib.util.spec_from_file_location(
@@ -24,6 +26,25 @@ def finding(path, verified=False, verification_error="", detector="Box"):
     if verification_error:
         f["VerificationError"] = verification_error
     return f
+
+
+class CommandTest(unittest.TestCase):
+    def test_verification_is_always_off(self):
+        cmd = scanner.build_command("image.tar", "/tmp/trufflehog")
+        self.assertIn("--no-verification", cmd)
+        self.assertEqual(cmd[:2], ["/tmp/trufflehog", "docker"])
+
+    def test_scan_runs_the_built_command(self):
+        seen = []
+
+        def fake_run(cmd, **kwargs):
+            seen.append(cmd)
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        with mock.patch.object(scanner.subprocess, "run", fake_run):
+            scanner.scan_docker_image("image.tar", "/tmp/trufflehog")
+        self.assertEqual(seen, [scanner.build_command("image.tar", "/tmp/trufflehog")])
+        self.assertIn("--no-verification", seen[0])
 
 
 class ScanTest(unittest.TestCase):

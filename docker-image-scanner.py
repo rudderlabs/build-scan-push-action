@@ -20,21 +20,25 @@ def format_image_path(image_path: str) -> str:
     return f"file://{abs_path}"
 
 
+def build_command(image_path: str, trufflehog: str = "trufflehog") -> List[str]:
+    """Build the TruffleHog command. No option removes --no-verification."""
+    return [
+        trufflehog,
+        "docker",
+        "--image",
+        format_image_path(image_path),
+        "--json",
+        "--no-update",
+        # Verification sends each candidate string to the provider's API.
+        # A customer secret in an image must never be used against a provider by our CI.
+        "--no-verification",
+    ]
+
+
 def scan_docker_image(image_path: str, trufflehog: str = "trufflehog") -> List[Dict]:
     """Scan Docker image using trufflehog and return JSON results."""
     try:
-        formatted_path = format_image_path(image_path)
-        cmd = [
-            trufflehog,
-            "docker",
-            "--image",
-            formatted_path,
-            "--json",
-            "--no-update",
-            # Verification is off, so the allowlist suppresses unverified findings
-            # by detector and path. Each allowlist entry must cite its evidence.
-            "--no-verification",
-        ]
+        cmd = build_command(image_path, trufflehog)
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode != 0:
