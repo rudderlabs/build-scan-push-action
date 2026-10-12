@@ -23,7 +23,12 @@ class CommandTest(unittest.TestCase):
         cmd = scanner.build_command("image.tar")
         self.assertEqual(
             cmd[:4],
-            ["trufflehog", "docker", "--image", "file://" + os.path.abspath("image.tar")],
+            [
+                "trufflehog",
+                "docker",
+                "--image",
+                "file://" + os.path.abspath("image.tar"),
+            ],
         )
         self.assertCountEqual(cmd[4:], ["--json", "--no-update", "--no-verification"])
 
