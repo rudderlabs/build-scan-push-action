@@ -121,14 +121,12 @@ runs:
       run: |
         TRUFFLEHOG_VERSION="3.88.5"
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
-        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o trufflehog.tar.gz
-        tar -xzf trufflehog.tar.gz
-        chmod +x trufflehog
-
-        sudo mv trufflehog /usr/local/bin/
-
-        # Cleanup
-        rm trufflehog.tar.gz
+        TRUFFLEHOG_DIR="${RUNNER_TEMP}/trufflehog"
+        mkdir -p "$TRUFFLEHOG_DIR"
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o "$TRUFFLEHOG_DIR/trufflehog.tar.gz"
+        tar -xzf "$TRUFFLEHOG_DIR/trufflehog.tar.gz" -C "$TRUFFLEHOG_DIR"
+        chmod +x "$TRUFFLEHOG_DIR/trufflehog"
+        echo "$TRUFFLEHOG_DIR" >> "$GITHUB_PATH"
 
     - name: Scan docker image with TruffleHog
       id: scan-docker-image
