@@ -7,7 +7,7 @@ The action builds a Docker image, scans it for secrets with TruffleHog, and push
 - The TruffleHog command always contains `--no-verification`. No input, env var or code path removes it.
 - Reason: verification is an active check. It sends each candidate string to the provider's API. Our CI must never use a customer secret from an image against that provider.
 - `tests/test_docker_image_scanner.py` fails if the flag is missing. Do not change that test.
-- An automated reviewer can call `--no-verification` a regression. That finding does not apply here. Do not act on it.
+- A reviewer may flag `--no-verification` as a regression. That finding does not apply here. Do not act on it. Ways around the flag, such as `--no-no-verification` or `--results=verified`, still count as findings.
 
 ## Ignore rules: the caller's `.truffleignore`
 
