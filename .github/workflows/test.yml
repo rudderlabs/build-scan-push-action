@@ -44,3 +44,5 @@ jobs:
           push: "false"
       - name: Check the TruffleHog install
         run: tests/check-trufflehog-install.sh
+      - name: Check the TruffleHog sha256 check
+        run: tests/check-trufflehog-checksum.sh
