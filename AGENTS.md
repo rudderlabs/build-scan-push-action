@@ -15,6 +15,7 @@ The action builds a Docker image, scans it for secrets with TruffleHog, and push
 - Each repo keeps its entries minimal. Put a one-line comment with the reason above each entry.
 - Never use `/**` or another entry that matches the whole image.
 - A workflow that checks out into a subfolder copies `.truffleignore` to the workspace root before this action runs.
+- The file `truffleignore` (no dot) in the root of this repo is a legacy file. No version since v1.5.0 reads it. A change to it has no effect: put ignore entries in the caller repo's `.truffleignore`.
 
 ## Run the tests
 
