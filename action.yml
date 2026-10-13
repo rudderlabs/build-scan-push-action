@@ -119,11 +119,11 @@ runs:
     - name: Install TruffleHog
       shell: bash
       run: |
-        TRUFFLEHOG_VERSION="3.88.5"
+        TRUFFLEHOG_VERSION="3.99.2"
         # The version and both checksums change together. Copy the sums from trufflehog_<version>_checksums.txt on the release.
         case "$TRUFFLEHOG_ARCH" in
-          amd64) TRUFFLEHOG_SHA256="a648c6252a808044976b9db0aad5eb33905e6a47b2ecc923a44085000bc8ed92" ;;
-          arm64) TRUFFLEHOG_SHA256="a7e841ef70781f5a0658370660156d6924945db1f2f7b9d130f705459c86362d" ;;
+          amd64) TRUFFLEHOG_SHA256="3c7b0d1dc4278294269bfdd7594bca8bb28c78da0a4a06ad202ded37b48deca4" ;;
+          arm64) TRUFFLEHOG_SHA256="929b81efffca752eafd58bf6f17bf725d354f338636a7bbbee65c086d2f9ddf3" ;;
         esac
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
         TRUFFLEHOG_DIR="${RUNNER_TEMP}/trufflehog"
