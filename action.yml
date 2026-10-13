@@ -120,15 +120,19 @@ runs:
       shell: bash
       run: |
         TRUFFLEHOG_VERSION="3.88.5"
+        # The version and both checksums change together. Copy the sums from trufflehog_<version>_checksums.txt on the release.
+        case "$TRUFFLEHOG_ARCH" in
+          amd64) TRUFFLEHOG_SHA256="a648c6252a808044976b9db0aad5eb33905e6a47b2ecc923a44085000bc8ed92" ;;
+          arm64) TRUFFLEHOG_SHA256="a7e841ef70781f5a0658370660156d6924945db1f2f7b9d130f705459c86362d" ;;
+        esac
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
-        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o trufflehog.tar.gz
-        tar -xzf trufflehog.tar.gz
-        chmod +x trufflehog
-
-        sudo mv trufflehog /usr/local/bin/
-
-        # Cleanup
-        rm trufflehog.tar.gz
+        TRUFFLEHOG_DIR="${RUNNER_TEMP}/trufflehog"
+        mkdir -p "$TRUFFLEHOG_DIR"
+        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o "$TRUFFLEHOG_DIR/trufflehog.tar.gz"
+        echo "${TRUFFLEHOG_SHA256}  $TRUFFLEHOG_DIR/trufflehog.tar.gz" | sha256sum -c -
+        tar -xzf "$TRUFFLEHOG_DIR/trufflehog.tar.gz" -C "$TRUFFLEHOG_DIR"
+        chmod +x "$TRUFFLEHOG_DIR/trufflehog"
+        echo "$TRUFFLEHOG_DIR" >> "$GITHUB_PATH"
 
     - name: Scan docker image with TruffleHog
       id: scan-docker-image
