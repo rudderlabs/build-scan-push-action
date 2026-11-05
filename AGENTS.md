@@ -22,6 +22,7 @@ The action builds a Docker image, scans it for secrets with TruffleHog, and push
 - The install step in `action.yml` pins the TruffleHog version and one sha256 per architecture (amd64, arm64).
 - A version bump must update both checksums in the same commit. Copy them from `trufflehog_<version>_checksums.txt` on the TruffleHog release.
 - The step checks the download with `sha256sum -c` before it extracts the archive. A mismatch fails the step.
+- The download runs `curl -fsSL --retry 5 --retry-all-errors`. Without `-f`, curl saves an HTTP error page as the archive. Without `--retry`, one failed response from the release download fails the build.
 
 ## Run the tests
 

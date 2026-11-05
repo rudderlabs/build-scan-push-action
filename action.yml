@@ -128,7 +128,8 @@ runs:
         echo "Installing TruffleHog version $TRUFFLEHOG_VERSION"
         TRUFFLEHOG_DIR="${RUNNER_TEMP}/trufflehog"
         mkdir -p "$TRUFFLEHOG_DIR"
-        curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o "$TRUFFLEHOG_DIR/trufflehog.tar.gz"
+        # -f fails on an HTTP error instead of saving the error page as the archive. --retry rides out a transient failure of the release download.
+        curl -fsSL --retry 5 --retry-all-errors "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_${TRUFFLEHOG_ARCH}.tar.gz" -o "$TRUFFLEHOG_DIR/trufflehog.tar.gz"
         echo "${TRUFFLEHOG_SHA256}  $TRUFFLEHOG_DIR/trufflehog.tar.gz" | sha256sum -c -
         tar -xzf "$TRUFFLEHOG_DIR/trufflehog.tar.gz" -C "$TRUFFLEHOG_DIR"
         chmod +x "$TRUFFLEHOG_DIR/trufflehog"
