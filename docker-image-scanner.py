@@ -7,6 +7,10 @@ import pathspec
 
 from typing import List, Dict
 
+DEFAULT_IGNOREPATHS = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "default.truffleignore"
+)
+
 
 def format_image_path(image_path: str) -> str:
     """Format the image path to use file:/// prefix with absolute path."""
@@ -54,16 +58,27 @@ def scan_docker_image(image_path: str) -> List[Dict]:
         sys.exit(1)
 
 
-def filter_results(findings: List[Dict], ignorepaths: str) -> List[Dict]:
-    """Filter findings based on gitignore patterns."""
-    try:
-        with open(ignorepaths, "r") as fh:
-            spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
-    except FileNotFoundError:
-        print(
-            f"file {ignorepaths} not found in repository. Not filtering any findings."
-        )
-        return findings
+def load_patterns(path: str) -> List[str]:
+    with open(path, "r") as fh:
+        return fh.read().splitlines()
+
+
+def filter_results(
+    findings: List[Dict],
+    ignorepaths: str,
+    default_ignorepaths: str = DEFAULT_IGNOREPATHS,
+) -> List[Dict]:
+    """Filter findings based on the bundled default patterns and the caller's gitignore patterns."""
+    patterns = load_patterns(default_ignorepaths)
+    if ignorepaths:
+        try:
+            patterns += load_patterns(ignorepaths)
+        except FileNotFoundError:
+            print(
+                f"file {ignorepaths} not found in repository. Only filtering findings with the default ignore patterns."
+            )
+
+    spec = pathspec.PathSpec.from_lines("gitwildmatch", patterns)
 
     filtered_findings = []
 
@@ -94,9 +109,7 @@ def main():
 
     findings = scan_docker_image(args.image)
 
-    # Filter results if patterns provided
-    if args.ignorepaths:
-        findings = filter_results(findings, args.ignorepaths)
+    findings = filter_results(findings, args.ignorepaths)
 
     # Output results
     if findings:
