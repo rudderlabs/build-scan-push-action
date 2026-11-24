@@ -1,0 +1,6 @@
+/var/lib/dpkg/**
+/var/lib/rpm/**
+/var/lib/apk/**
+/lib/apk/db/**
+/usr/libexec/docker/cli-plugins/**
+**/.venv/**/bin/*

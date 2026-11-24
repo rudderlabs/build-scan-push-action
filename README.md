@@ -31,6 +31,10 @@ Create a `.truffleignore` file at the root of your repository. Add paths
 that you want to exclude in [gitignore-style pattern](https://git-scm.com/docs/gitignore)
 format. All paths that match these patterns are excluded in TruffleHog scans.
 
+The action also ignores a built-in list of paths for OS package databases and
+vendored binaries (see `default.truffleignore`). These defaults always apply and
+are merged with your `.truffleignore`.
+
 ## Current Limitations
 
 This GitHub Action only accepts the following inputs.

@@ -13,6 +13,7 @@ The action builds a Docker image, scans it for secrets with TruffleHog, and push
 
 - The scanner reads `.truffleignore` from the root of the caller's workspace. The format is gitignore patterns, matched against paths in the image.
 - Each repo keeps its entries minimal. Put a one-line comment with the reason above each entry.
+- `default.truffleignore` in the root of this repo is the built-in list. It always applies and merges with the caller's file. It holds OS package databases and vendored binaries only. Never add a broad path such as `/usr/**`, `/opt/**` or `/app/**`.
 - Never use `/**` or another entry that matches the whole image.
 - A workflow that checks out into a subfolder copies `.truffleignore` to the workspace root before this action runs.
 - The file `truffleignore` (no dot) in the root of this repo is a legacy file. No version since v1.5.0 reads it. A change to it has no effect: put ignore entries in the caller repo's `.truffleignore`.
