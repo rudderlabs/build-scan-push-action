@@ -38,7 +38,7 @@ CI runs `.github/workflows/test.yml` on each pull request. The `unit` job runs t
 
 - release-please opens a `chore: release x.y.z` PR against `main`. Merge that PR. release-please then tags `vX.Y.Z` and writes the GitHub release.
 - Never push a tag or write a release by hand. Dependabot proposes caller updates from the tags.
-- Use Conventional Commit titles. The `Validate PR title` check enforces them.
+- Use Conventional Commit titles. The `Validate PR title` check reads the title and, for a one-commit PR, the commit message. It skips bot PRs, so check a bot PR's title by eye before you merge it.
 - `feat`, `fix`, `perf`, `revert`, `refactor`, `chore` and `build` commits open a release PR. `ci`, `test` and `docs` commits open none. They stay out of the changelog because callers do not get those changes. A breaking-change marker, such as `ci!:`, still opens a major release.
-- Dependabot titles every bump `chore(deps):`. A bump to an action that only a workflow uses still opens a release PR. Leave that release PR open. It picks up the next real change, and you merge it then.
+- `dependabot.yml` titles every bump `chore(deps):`. A bump to an action that only a workflow uses still opens a release PR. Leave that release PR open. It picks up the next real change, and you merge it then.
 - Merge with squash. release-please reads the squash commit message. A one-commit PR squashes to that commit's message, so give the commit a Conventional Commit message too.

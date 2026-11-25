@@ -13,8 +13,8 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Without a token, the action reads the title from the event payload.
-    permissions: {}
+    permissions:
+      pull-requests: read # read the current title and the single commit
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -35,3 +35,6 @@ jobs:
             perf
             revert
           subjectPattern: ^(?![A-Z]).+$
+          # A one-commit PR squashes to its commit message, which release-please reads.
+          validateSingleCommit: true
+          githubToken: ${{ github.token }}
