@@ -36,6 +36,10 @@ inputs:
     description: "Push is a shorthand for --output=type=registry"
     required: false
     default: "false"
+  revision:
+    description: "Commit written to the org.opencontainers.image.revision label. Overrides the same label in labels"
+    required: false
+    default: ${{ github.sha }}
   sbom:
     description: "Generate SBOM attestation for the build (shorthand for --attest=type=sbom)"
     required: false
@@ -45,6 +49,10 @@ inputs:
   secrets:
     description: "List of secrets to expose to the build (e.g., key=string, GIT_AUTH_TOKEN=mytoken)"
     required: false
+  source:
+    description: "Repository URL written to the org.opencontainers.image.source label. Overrides the same label in labels"
+    required: false
+    default: ${{ github.server_url }}/${{ github.repository }}
   tags:
     description: "List of tags"
     required: false
@@ -62,6 +70,9 @@ outputs:
   metadata:
     description: "Build result metadata"
     value: ${{ steps.build-and-push.outputs.metadata }}
+  repositories:
+    description: "JSON array of the image repositories the build pushed to (tag stripped). Pass these to the join action, never a hard-coded name"
+    value: ${{ steps.pushed.outputs.repositories }}
 
 runs:
   using: "composite"
@@ -78,6 +89,25 @@ runs:
           echo "platform=$INPUT_PLATFORMS" >> $GITHUB_OUTPUT
         fi
 
+    - name: Compose OCI labels
+      id: labels
+      shell: bash
+      env:
+        INPUT_LABELS: ${{ inputs.labels }}
+        REVISION: ${{ inputs.revision }}
+        SOURCE: ${{ inputs.source }}
+      run: |
+        set -euo pipefail
+        [[ "$REVISION" =~ ^[0-9a-f]{40,64}$ ]] || { echo "::error::revision is not a lowercase hex commit id"; exit 1; }
+        [[ "$SOURCE" =~ ^https://[A-Za-z0-9./_-]+$ ]] || { echo "::error::source is not an https URL"; exit 1; }
+        {
+          echo 'labels<<EOF_LABELS'
+          grep -vE '^org\.opencontainers\.image\.(revision|source)=' <<< "$INPUT_LABELS" || true
+          echo "org.opencontainers.image.revision=$REVISION"
+          echo "org.opencontainers.image.source=$SOURCE"
+          echo 'EOF_LABELS'
+        } >> "$GITHUB_OUTPUT"
+
     - name: Build image
       uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
       with:
@@ -86,7 +116,7 @@ runs:
         platforms: ${{ steps.select-single-platform.outputs.platform }}
         push: false
         tags: ${{ inputs.tags }}
-        labels: ${{ inputs.labels }}
+        labels: ${{ steps.labels.outputs.labels }}
         build-args: ${{ inputs.build-args }}
         secret-envs: ${{ inputs.secret-envs }}
         secrets: ${{ inputs.secrets }}
@@ -151,7 +181,7 @@ runs:
         platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
-        labels: ${{ inputs.labels }}
+        labels: ${{ steps.labels.outputs.labels }}
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
         provenance: ${{ inputs.provenance }}
@@ -160,3 +190,14 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
+
+    - name: Report pushed repositories
+      id: pushed
+      if: ${{ inputs.push == 'true' }}
+      shell: bash
+      env:
+        TAGS: ${{ inputs.tags }}
+      run: |
+        set -euo pipefail
+        repos="$(tr ',' '\n' <<< "$TAGS" | sed -E 's/[[:space:]]//g; /^$/d; s/@sha256:.*$//; s/:[^:/]*$//' | sort -u | jq -R . | jq -sc .)"
+        printf 'repositories=%s\n' "$repos" >> "$GITHUB_OUTPUT"
