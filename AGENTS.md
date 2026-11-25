@@ -33,3 +33,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
 CI runs `.github/workflows/test.yml` on each pull request. The `unit` job runs these tests. The `action` job runs the action on `tests/fixtures/image`. Then `tests/check-trufflehog-install.sh` fails if the action left any file in the checkout, ignored files included, or if `trufflehog` on PATH is not the copy in `$RUNNER_TEMP`. Then `tests/check-trufflehog-checksum.sh` runs the install step twice: as committed it must pass, and with a wrong sha256 it must fail before extraction.
+
+## Releases
+
+- release-please releases this action. Merge the `chore: release x.y.z` PR that it opens on `main`. It tags `vX.Y.Z` and writes the GitHub release.
+- Never push a tag or write a release by hand. Callers pin the action by SHA, and Dependabot proposes updates from these releases.
+- Use Conventional Commit titles. A `fix` or `feat` title opens a release PR. Squash merge makes the PR title the changelog line.
+- Guide: `ci-gha-best-practices` skill, `RELEASE-PLEASE.md`.
