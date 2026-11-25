@@ -37,6 +37,7 @@ CI runs `.github/workflows/test.yml` on each pull request. The `unit` job runs t
 ## Releases
 
 - release-please releases this action. Merge the `chore: release x.y.z` PR that it opens on `main`. It tags `vX.Y.Z` and writes the GitHub release.
-- Never push a tag or write a release by hand. Callers pin the action by SHA, and Dependabot proposes updates from these releases.
-- Use Conventional Commit titles. A `fix` or `feat` title opens a release PR. Squash merge makes the PR title the changelog line.
+- Never push a tag or write a release by hand. Callers pin the action by SHA, and Dependabot proposes updates from the tags.
+- Use Conventional Commit messages. `feat`, `fix`, `perf`, `revert`, `refactor`, `chore` and `build` commits open a release PR. `ci`, `test` and `docs` commits stay out of the changelog and open none, because callers do not get those changes.
+- release-please reads the squash commit message. A one-commit PR squashes to that commit's message, so give the commit a Conventional Commit message too.
 - Guide: `ci-gha-best-practices` skill, `RELEASE-PLEASE.md`.
