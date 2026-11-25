@@ -28,6 +28,9 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
-      pip:
+      pip-deps:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
