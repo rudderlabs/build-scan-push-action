@@ -1,0 +1,40 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # the App token does every write
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: audit
+
+      # A release PR opened with GITHUB_TOKEN triggers no workflows, so its checks never run.
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # release commit, tag and release
+          permission-pull-requests: write # release PR and its labels
+
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          target-branch: ${{ github.ref_name }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

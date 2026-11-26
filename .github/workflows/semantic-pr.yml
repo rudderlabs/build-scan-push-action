@@ -1,0 +1,40 @@
+name: Semantic pull requests
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  merge_group:
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  main:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read # read the current title and the single commit
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: audit
+      # The squash title becomes the release-please changelog line.
+      - uses: rudderlabs/github-action-check-pr-title@3967756a96b89133e6cd700a8384a1e2b95cb21c # v2.0.3
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            ci
+            build
+            perf
+            revert
+          subjectPattern: ^(?![A-Z]).+$
+          # A one-commit PR squashes to its commit message, which release-please reads.
+          validateSingleCommit: true
+          githubToken: ${{ github.token }}
