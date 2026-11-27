@@ -7,7 +7,7 @@ import unittest
 SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "push-target.sh")
 
 
-def run(push, by_digest, tags):
+def run(push, by_digest, tags, platforms="linux/arm64"):
     with tempfile.NamedTemporaryFile("r", delete=False) as out:
         path = out.name
     try:
@@ -17,6 +17,7 @@ def run(push, by_digest, tags):
             "PUSH": push,
             "PUSH_BY_DIGEST": by_digest,
             "TAGS": tags,
+            "PLATFORMS": platforms,
         }
         proc = subprocess.run(["bash", SCRIPT], env=env, capture_output=True, text=True)
         with open(path) as f:
@@ -95,6 +96,23 @@ class PushTargetTest(unittest.TestCase):
         code, _, err = run("true", "true", "reg.example/app@sha256:" + "a" * 64)
         self.assertNotEqual(code, 0)
         self.assertIn("not digest references", err)
+
+    def test_by_digest_rejects_several_platforms(self):
+        for platforms in ("linux/amd64,linux/arm64", "linux/amd64\nlinux/arm64", ""):
+            code, out, err = run("true", "true", "reg.example/app", platforms)
+            self.assertNotEqual(code, 0, platforms)
+            self.assertIn("exactly one platform", err)
+            self.assertEqual(out, {})
+
+    def test_tagged_push_allows_several_platforms(self):
+        code, out, _ = run("true", "false", "reg.example/app:1", "linux/amd64,linux/arm64")
+        self.assertEqual(code, 0)
+        self.assertEqual(out["push"], "true")
+
+    def test_push_is_trimmed(self):
+        code, out, _ = run(" true\n", "false", "reg.example/app:1")
+        self.assertEqual(code, 0)
+        self.assertEqual(out["push"], "true")
 
     def test_invalid_boolean_fails(self):
         code, _, err = run("yes", "false", "reg.example/app:1")

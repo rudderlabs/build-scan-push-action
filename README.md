@@ -23,7 +23,8 @@ For more info, refer the documentation of
 
 ## Pushing by digest
 
-Set `push-by-digest: "true"` (with `push: "true"`) to push the image without a tag.
+Set `push-by-digest: "true"` (with `push: "true"` and exactly one entry in `platforms`,
+the platform the scan covers) to push the image without a tag.
 `tags` then only names the repositories; any tag part is ignored. Read the pushed
 manifest digest from the `digest` output.
 

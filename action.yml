@@ -37,7 +37,7 @@ inputs:
     required: false
     default: "false"
   push-by-digest:
-    description: "Push the image untagged and return it in the digest output. tags then name only the repositories; tag parts are ignored. Needs push: true"
+    description: "Push the image untagged and return it in the digest output. tags then name only the repositories; tag parts are ignored. Needs push: true and exactly one platform"
     required: false
     default: "false"
   revision:
@@ -88,6 +88,7 @@ runs:
         PUSH: ${{ inputs.push }}
         PUSH_BY_DIGEST: ${{ inputs.push-by-digest }}
         TAGS: ${{ inputs.tags }}
+        PLATFORMS: ${{ inputs.platforms }}
       run: bash "$GITHUB_ACTION_PATH/push-target.sh"
 
     - name: Select single platform
@@ -112,13 +113,14 @@ runs:
       run: |
         set -euo pipefail
         [[ "$REVISION" =~ ^[0-9a-f]{40,64}$ ]] || { echo "::error::revision is not a lowercase hex commit id"; exit 1; }
-        [[ "$SOURCE" =~ ^https://[A-Za-z0-9./_-]+$ ]] || { echo "::error::source is not an https URL"; exit 1; }
+        [[ "$SOURCE" =~ ^https://[A-Za-z0-9.-]+(:[0-9]+)?(/[A-Za-z0-9._-]+)*/?$ ]] || { echo "::error::source is not an https URL"; exit 1; }
+        delim="EOF_$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
         {
-          echo 'labels<<EOF_LABELS'
+          echo "labels<<$delim"
           grep -vE '^org\.opencontainers\.image\.(revision|source)=' <<< "$INPUT_LABELS" || true
           echo "org.opencontainers.image.revision=$REVISION"
           echo "org.opencontainers.image.source=$SOURCE"
-          echo 'EOF_LABELS'
+          echo "$delim"
         } >> "$GITHUB_OUTPUT"
 
     - name: Build image
