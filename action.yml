@@ -36,6 +36,10 @@ inputs:
     description: "Push is a shorthand for --output=type=registry"
     required: false
     default: "false"
+  push-by-digest:
+    description: "Push the image untagged and return it in the digest output. tags then name only the repositories; tag parts are ignored. Needs push: true"
+    required: false
+    default: "false"
   revision:
     description: "Commit written to the org.opencontainers.image.revision label. Overrides the same label in labels"
     required: false
@@ -71,12 +75,21 @@ outputs:
     description: "Build result metadata"
     value: ${{ steps.build-and-push.outputs.metadata }}
   repositories:
-    description: "JSON array of the image repositories the build pushed to (tag stripped). Pass these to the join action, never a hard-coded name"
-    value: ${{ steps.pushed.outputs.repositories }}
+    description: "JSON array of the image repositories the build pushed to (tag stripped). Empty array when push is false"
+    value: ${{ steps.target.outputs.repositories }}
 
 runs:
   using: "composite"
   steps:
+    - name: Resolve push target
+      id: target
+      shell: bash
+      env:
+        PUSH: ${{ inputs.push }}
+        PUSH_BY_DIGEST: ${{ inputs.push-by-digest }}
+        TAGS: ${{ inputs.tags }}
+      run: bash "$GITHUB_ACTION_PATH/push-target.sh"
+
     - name: Select single platform
       id: select-single-platform
       shell: bash
@@ -179,8 +192,9 @@ runs:
         context: ${{ inputs.context }}  # zizmor: ignore[template-injection] passed to action as input, not eval'd
         file: ${{ inputs.file }}
         platforms: ${{ inputs.platforms }}
-        push: ${{ inputs.push }}
-        tags: ${{ inputs.tags }}
+        push: ${{ steps.target.outputs.push }}
+        tags: ${{ steps.target.outputs.tags }}
+        outputs: ${{ steps.target.outputs.outputs }}
         labels: ${{ steps.labels.outputs.labels }}
         build-args: ${{ inputs.build-args }}
         sbom: ${{ inputs.sbom }}
@@ -190,14 +204,3 @@ runs:
         cache-from: ${{ inputs.cache-from }}
         cache-to: ${{ inputs.cache-to }}
         target: ${{ inputs.target }}
-
-    - name: Report pushed repositories
-      id: pushed
-      if: ${{ inputs.push == 'true' }}
-      shell: bash
-      env:
-        TAGS: ${{ inputs.tags }}
-      run: |
-        set -euo pipefail
-        repos="$(tr ',' '\n' <<< "$TAGS" | sed -E 's/[[:space:]]//g; /^$/d; s/@sha256:.*$//; s/:[^:/]*$//' | sort -u | jq -R . | jq -sc .)"
-        printf 'repositories=%s\n' "$repos" >> "$GITHUB_OUTPUT"
