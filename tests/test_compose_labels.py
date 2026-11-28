@@ -68,6 +68,14 @@ class ComposeLabelsTest(unittest.TestCase):
         self.assertNotEqual(code, 0)
         self.assertIn("source is not", err)
 
+    def test_input_is_trimmed_at_the_ends_only(self):
+        code, labels, _ = run(revision=f" {INPUT_SHA}\n", source=" https://github.com/org/app ")
+        self.assertEqual(code, 0)
+        self.assertEqual(labels.splitlines(), [REV + INPUT_SHA, SRC + "https://github.com/org/app"])
+        code, _, err = run(source="https://github.com/rudder labs/app")
+        self.assertNotEqual(code, 0)
+        self.assertIn("source is not", err)
+
     def test_other_labels_pass_through(self):
         code, labels, _ = run("a=1\nb=2")
         self.assertEqual(code, 0)

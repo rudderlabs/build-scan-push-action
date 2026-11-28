@@ -7,8 +7,9 @@ fail() { echo "::error::$*" >&2; exit 1; }
 
 : "${GITHUB_OUTPUT:?}"
 labels="${INPUT_LABELS:-}"
-REVISION="$(tr -d '[:space:]' <<< "${REVISION:-}")"
-SOURCE="$(tr -d '[:space:]' <<< "${SOURCE:-}")"
+trim() { printf '%s' "$1" | sed -E '1s/^[[:space:]]+//; $s/[[:space:]]+$//'; }
+REVISION="$(trim "${REVISION:-}")"
+SOURCE="$(trim "${SOURCE:-}")"
 
 revision_re='^[0-9a-f]{40,64}$'
 source_re='^https://[A-Za-z0-9.-]+(:[0-9]+)?(/[A-Za-z0-9._-]+)*/?$'
