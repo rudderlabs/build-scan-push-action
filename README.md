@@ -52,7 +52,8 @@ an index, not a single-platform image.
 - `repositories`: JSON array of the repositories pushed to (tag stripped); empty when `push` is false
 
 The action sets the `org.opencontainers.image.revision` and `org.opencontainers.image.source`
-labels from the `revision` and `source` inputs (defaults: the commit and repository of the run).
+labels. For each, the `revision`/`source` input wins; when it is empty, the same label in
+`labels` is kept; when neither is set, the commit and repository of the run are used.
 
 ## Ignoring false positives
 
