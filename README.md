@@ -21,6 +21,39 @@ in your GitHub Workflows.
 For more info, refer the documentation of
 [docker-build-push](https://github.com/docker/build-push-action) GitHub Action.
 
+## Pushing by digest
+
+Set `push-by-digest: "true"` (with `push: "true"` and exactly one entry in `platforms`,
+the platform the scan covers) to push the image without a tag.
+`tags` then only names the repositories; any tag part is ignored. Read the pushed
+manifest digest from the `digest` output.
+
+Use this for per-platform builds on native runners: each job pushes its image
+untagged, and a later job joins the digests into one multi-arch index under the
+final tags. No per-platform tags are left in the repository.
+
+```yaml
+- id: build
+  uses: rudderlabs/build-scan-push-action@<sha>
+  with:
+    platforms: linux/arm64
+    push: "true"
+    push-by-digest: "true"
+    tags: registry.example.com/team/app
+# steps.build.outputs.digest is the per-platform image digest
+```
+
+Keep `provenance` and `sbom` off for these builds: with attestations the push is
+an index, not a single-platform image.
+
+## Outputs
+
+- `imageid`, `digest`, `metadata`: as returned by `docker/build-push-action`
+- `repositories`: JSON array of the repositories pushed to (tag stripped); empty when `push` is false
+
+The action sets the `org.opencontainers.image.revision` and `org.opencontainers.image.source`
+labels from the `revision` and `source` inputs (defaults: the commit and repository of the run).
+
 ## Ignoring false positives
 
 By default TruffleHog doesn't support excluding file paths when
@@ -49,9 +82,12 @@ This GitHub Action only accepts the following inputs.
 - `platforms`
 - `provenance`
 - `push`
+- `push-by-digest`
+- `revision`
 - `sbom`
 - `secret-envs`
 - `secrets`
+- `source`
 - `tags`
 - `target`
 
